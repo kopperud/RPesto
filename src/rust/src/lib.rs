@@ -1,4 +1,7 @@
 use extendr_api::prelude::*;
+use crate::spline::*;
+
+pub mod spline;
 
 /// Return string `"Hello world!"` to R.
 /// @export
