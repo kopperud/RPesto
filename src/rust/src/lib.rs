@@ -6,6 +6,7 @@ use crate::tokenizer::tokenize;
 use crate::parser::*;
 use crate::extinction::*;
 use crate::utils::*;
+use crate::odesolver::*;
 
 pub mod spline;
 pub mod tokenizer;
@@ -13,6 +14,7 @@ pub mod tree;
 pub mod parser;
 pub mod extinction;
 pub mod utils;
+pub mod odesolver;
 
 /// Return string `"Hello world!"` to R.
 /// @export
