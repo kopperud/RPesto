@@ -11,3 +11,5 @@ name = 'RPesto'
 
 [dependencies]
 extendr-api = '*'
+once_cell = "1.21.3"
+regex = "1.11.1"
