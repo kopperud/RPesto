@@ -26,5 +26,8 @@ branch_probability <- function(lambda, mu, t, tol) .Call(wrap__branch_probabilit
 #' @export
 likelihood <- function(lambda, mu, phy, tol) .Call(wrap__likelihood, lambda, mu, phy, tol)
 
+#' @export
+lognormal_quantile <- function(x, scale, sigma) .Call(wrap__lognormal_quantile, x, scale, sigma)
+
 
 # nolint end

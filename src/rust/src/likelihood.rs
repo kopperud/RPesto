@@ -72,3 +72,7 @@ fn likelihood_cbdp_po(
         
     return (p, log_sf);
 }
+
+// the state-dependent process
+
+

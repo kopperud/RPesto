@@ -115,6 +115,29 @@ fn branch_probability(lambda: f64, mu: f64, t: f64, tol : f64) -> extendr_api::L
     return res;
 }
 
+const P: f64 = 0.47047;
+const A1: f64 = 0.3480242;
+const A2: f64 = -0.0958798;
+const A3: f64 = 0.7478556;
+
+
+fn error_function(x: f64) -> f64{
+    let t = 1.0 / (1.0 + P*x);
+
+    let res = 1.0 - (A1*t + A2*t*t + A3*t*t*t) * f64::exp(-(x*x));
+
+    return res;
+}
+
+/// @export
+#[extendr]
+pub fn lognormal_quantile(x: f64, scale: f64, sigma: f64) -> f64{
+    let res = 0.5 * (1.0 + error_function((x.ln() - scale)/(sigma * f64::sqrt(2.0))));
+    return res;
+}
+
+
+
 // Macro to generate exports.
 // This ensures exported functions are registered with R.
 // See corresponding C code in `entrypoint.c`.
@@ -125,4 +148,5 @@ extendr_module! {
     fn extinction_probability; 
     fn branch_probability; 
     fn likelihood; 
+    fn lognormal_quantile; 
 }
