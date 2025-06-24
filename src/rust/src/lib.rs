@@ -1,7 +1,16 @@
 use extendr_api::prelude::*;
+
+
 use crate::spline::*;
+use crate::tokenizer::tokenize;
+use crate::parser::*;
+use crate::utils::*;
 
 pub mod spline;
+pub mod tokenizer;
+pub mod tree;
+pub mod parser;
+pub mod utils;
 
 /// Return string `"Hello world!"` to R.
 /// @export
