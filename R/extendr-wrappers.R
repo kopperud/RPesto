@@ -14,5 +14,8 @@ NULL
 #' @export
 hello_world <- function() .Call(wrap__hello_world)
 
+#' @export
+print_me_a_tree <- function(s) .Call(wrap__print_me_a_tree, s)
+
 
 # nolint end
