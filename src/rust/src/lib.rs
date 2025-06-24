@@ -9,15 +9,18 @@ use crate::extinction::*;
 use crate::branch_probability::*;
 use crate::utils::*;
 use crate::odesolver::*;
+use crate::likelihood::*;
 
 pub mod spline;
 pub mod tokenizer;
 pub mod tree;
 pub mod parser;
 pub mod extinction;
+pub mod likelihood;
 pub mod branch_probability;
 pub mod utils;
 pub mod odesolver;
+pub mod height;
 
 /// Return string `"Hello world!"` to R.
 /// @export
@@ -34,10 +37,10 @@ fn print_me_a_tree(s: String) -> (){
     println!("{:?}", tree);
 }
 
-fn likelihood(lambda: f64, mu: f64, phy: String) -> f64{
-    let tree = parse_tree(phy);
-
-    let lnl = 0.0;
+/// @export
+#[extendr]
+fn likelihood(lambda: f64, mu: f64, phy: String, tol: f64) -> f64{
+    let lnl = likelihood_cbdp(lambda, mu, phy, tol);
 
     return lnl;
 }
@@ -121,4 +124,5 @@ extendr_module! {
     fn print_me_a_tree;
     fn extinction_probability; 
     fn branch_probability; 
+    fn likelihood; 
 }

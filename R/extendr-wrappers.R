@@ -17,5 +17,14 @@ hello_world <- function() .Call(wrap__hello_world)
 #' @export
 print_me_a_tree <- function(s) .Call(wrap__print_me_a_tree, s)
 
+#' @export
+extinction_probability <- function(lambda, mu, t, tol) .Call(wrap__extinction_probability, lambda, mu, t, tol)
+
+#' @export
+branch_probability <- function(lambda, mu, t, tol) .Call(wrap__branch_probability, lambda, mu, t, tol)
+
+#' @export
+likelihood <- function(lambda, mu, phy, tol) .Call(wrap__likelihood, lambda, mu, phy, tol)
+
 
 # nolint end

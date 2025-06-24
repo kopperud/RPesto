@@ -54,21 +54,5 @@ impl Gradient for BranchProbabilityMultiState{
         for i in 0..k{
             du[i] = self.mu[i] - (self.mu[i] + self.lambda[i] + self.eta) * u[i] + self.lambda[i] * u[i] * u[i] + r * (sum_u - u[i]);
         }
-
-        /*
-        for i in 0..k{
-            du[i] = self.mu[i] - (self.mu[i] + self.lambda[i] + self.eta) * u[i] + self.lambda[i] * u[i] * u[i];
-        }
-
-        for i in 0..k{
-            for j in 0..k{
-                du[i] += r * u[j];
-            }
-        }
-
-        for i in 0..k{
-            du[i] -= r * u[i];
-        }
-        */
     }
 }
