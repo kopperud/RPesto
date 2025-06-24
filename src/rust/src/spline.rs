@@ -89,7 +89,8 @@ impl MonotonicCubicSpline {
         let mut res = Vec::new();
 
         for j in 0..k{
-            let v = (value.0[j] * (1.0 + 2.0 * z) + h * m.0[j] * z) * (1.0 - z) * (1.0 - z);
+            let v = (value.0[j] * (1.0 + 2.0 * z) + h * m.0[j] * z) * (1.0 - z) * (1.0 - z) 
+                + (value.1[j] * (3.0 - 2.0 * z) + h * m.1[j] * (z - 1.0)) * z * z;
             res.push(v);
         }
 
