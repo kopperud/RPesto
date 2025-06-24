@@ -71,20 +71,20 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
     //let n_rows = probs.len();
     //let m = RMatrix::new_matrix(n_rows, 1, |r, c| probs[r][c]);
     
-    let spline = MonotonicCubicSpline::new(times, probs, 1);
+    //let spline = MonotonicCubicSpline::new(times, probs, 1);
 
-    let n_times = 100;
 
     let mut m = Vec::new();
 
-    let times2 = sequence(0.0, t, n_times);
-    //for p in probs{
-        //m.push(p[0]);
-    for t in times2.iter(){
-        m.push(spline.interpolate(*t)[0]);
+    //let n_times = 100;
+    //let times2 = sequence(0.0, t, n_times);
+    for p in probs{
+        m.push(p[0]);
+    //for t in times2.iter(){
+        //m.push(spline.interpolate(*t)[0]);
     }
 
-    let res = list!(t = &times2, probs = &m);
+    let res = list!(t = &times, probs = &m);
     //microbench::bench(&options, "making an R list", || {list!(t = &times, probs = &m)});
 
     return res;
