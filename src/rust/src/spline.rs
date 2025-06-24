@@ -88,8 +88,6 @@ impl MonotonicCubicSpline {
 
         let mut res = Vec::new();
 
-        //let k: usize = 4;
-
         for j in 0..k{
             let v = (value.0[j] * (1.0 + 2.0 * z) + h * m.0[j] * z) * (1.0 - z) * (1.0 - z);
             res.push(v);
@@ -98,7 +96,7 @@ impl MonotonicCubicSpline {
         return res;
     }
 
-    pub fn interpolate(&mut self, time : f64) -> Vec<f64> {
+    pub fn interpolate(&self, time : f64) -> Vec<f64> {
         let n = self.m_times.len();
 
         let p = *self.m_times.get(0).unwrap();
@@ -134,8 +132,6 @@ impl MonotonicCubicSpline {
 
         return MonotonicCubicSpline::hermite(time,
                                                 timespan,
-                                             //(*self.m_times.get(i).unwrap(), *self.m_times.get(i+1).unwrap()),
-                                             //(*self.m_values.get(i).unwrap(), *self.m_values.get(i+1).unwrap()),
                                              value,
                                              m,
                                              self.categories);

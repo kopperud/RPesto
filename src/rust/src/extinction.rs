@@ -1,8 +1,8 @@
 use crate::odesolver::*;
 
 pub struct Extinction{
-    pub mu: f64,
     pub lambda: f64,
+    pub mu: f64,
 }
 
 impl Gradient for Extinction{
