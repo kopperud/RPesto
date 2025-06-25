@@ -57,12 +57,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
         let t0 = child_time;
         let t1 = time;
 
-        //println!("t0: {}, t1: {}", t0, t1);
-
         let (_, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
-
-        //println!("u0: {:?}", u);
-        //println!("sol: {:?}", sol[0][0]);
 
         log_sf += sol[0][0].ln();
 
@@ -86,9 +81,6 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         let (p, sf) = self.likelihood_po(&tree, &ode, time, tol);
 
         let root_prior = vec![1.0 / (self.k as f64); self.k];
-
-        //println!("root prior = {:?}", root_prior);
-        //println!("lambda = {:?}", self.lambda);
 
         let mut lnl = 0.0;
         let mut pr= 0.0;
@@ -136,32 +128,16 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         let t0 = child_time;
         let t1 = time;
 
-        println!("t0: {}, t1: {}", t0, t1);
-        println!("u0: {:?}", u0);
-
         let (_, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
-
-        //println!("u0: {:?}", u);
-        println!("sol: {:?}", sol[0]);
 
         let alpha: f64 = sol[0].iter().sum();
 
-        let z = alpha < 0.0;
-        if z {
-            println!("log alpha = {}", alpha.ln());
-            println!("p(before normalizing) = {:?}", sol[0]);
-        }
-
-        //let p = sol[0].clone();
         let mut p = Vec::new();
         for i in 0..self.k{
             p.push(sol[0][i] / alpha);
         }
         //log_sf += sol[0].iter();
         log_sf += alpha.ln();
-
-
-        println!("p: {:?}", p);
             
         return (p, log_sf);
     }

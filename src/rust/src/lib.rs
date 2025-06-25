@@ -53,16 +53,10 @@ fn likelihood(lambda: f64, mu: f64, rho: f64, phy: String, tol: f64) -> f64{
 /// @export
 #[extendr]
 fn bds_likelihood(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, phy: String, tol: f64) -> f64{
-    println!("asd");
     let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
-    println!("asd2");
     let tree = parse_tree(phy); 
-    println!("asd3");
     let lnl = model.likelihood(&tree, tol);
-    println!("asd4");
 
-    //println!("lambda = {:?}", model.lambda);
-    //println!("mu = {:?}", model.mu);
 
     return lnl;
 }
@@ -145,46 +139,21 @@ fn branch_probability2(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, n: usize
     let (lambda, mu) = rate_categories(lambda_hat, mu_hat, sd, n);
     let rho = 1.0;
     let k = n*n;
-    println!("asd0");
     let ode = BranchProbabilityMultiState::new(lambda.clone(), mu.clone(), eta, rho, height, k, tol);
 
     let u0 = vec![1.0; k];
     let t0 = 0.0;
 
-    println!("asd1");
 
-    println!("lambda = {:?}", lambda); 
-    println!("mu = {:?}", mu); 
-    println!("k = {:?}", k); 
 
     let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 10, tol);
-
-
-    println!("asd2");
-
-    /*
-    let mut m = Vec::new();
-    for p in probs{
-        m.push(p);
-    }
-    */
 
     let nrows = probs.len();
     let ncols = probs[0].len();
 
-
-    println!("asd3");
-
     let m = extendr_api::matrix::RMatrix::new_matrix(nrows, ncols, |r,c| probs[r][c]);
 
-
-    println!("asd4");
-
     let res = list!(t = &times, probs = m);
-
-
-    println!("asd5");
-    //microbench::bench(&options, "making an R list", || {list!(t = &times, probs = &m)});
 
     return res;
 }

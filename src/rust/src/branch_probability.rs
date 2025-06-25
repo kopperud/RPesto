@@ -82,12 +82,7 @@ impl Gradient for BranchProbabilityMultiState{
 
         let sum_u: f64 = u.iter().sum();
 
-        //println!("lambda = {:?}", self.lambda);
-        //println!("mu = {:?}", self.mu);
-        //println!("et = {:?}", et);
-
         for i in 0..k{
-            //println!("i = {}", i);
             du[i] =  - (self.mu[i] + self.lambda[i] + self.eta) * u[i] + 2.0 * self.lambda[i] * u[i] * et[i] + r * (sum_u - u[i]);
         }
     }
