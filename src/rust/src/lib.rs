@@ -137,6 +137,58 @@ fn branch_probability(lambda: f64, mu: f64, t: f64, tol : f64) -> extendr_api::L
     return res;
 }
 
+/// @export
+#[extendr]
+fn branch_probability2(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, n: usize, t: f64, tol : f64) -> extendr_api::List{
+
+    let height = 100.0;
+    let (lambda, mu) = rate_categories(lambda_hat, mu_hat, sd, n);
+    let rho = 1.0;
+    let k = n*n;
+    println!("asd0");
+    let ode = BranchProbabilityMultiState::new(lambda.clone(), mu.clone(), eta, rho, height, k, tol);
+
+    let u0 = vec![1.0; k];
+    let t0 = 0.0;
+
+    println!("asd1");
+
+    println!("lambda = {:?}", lambda); 
+    println!("mu = {:?}", mu); 
+    println!("k = {:?}", k); 
+
+    let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 10, tol);
+
+
+    println!("asd2");
+
+    /*
+    let mut m = Vec::new();
+    for p in probs{
+        m.push(p);
+    }
+    */
+
+    let nrows = probs.len();
+    let ncols = probs[0].len();
+
+
+    println!("asd3");
+
+    let m = extendr_api::matrix::RMatrix::new_matrix(nrows, ncols, |r,c| probs[r][c]);
+
+
+    println!("asd4");
+
+    let res = list!(t = &times, probs = m);
+
+
+    println!("asd5");
+    //microbench::bench(&options, "making an R list", || {list!(t = &times, probs = &m)});
+
+    return res;
+}
+
 
 
 // Macro to generate exports.
@@ -148,6 +200,7 @@ extendr_module! {
     fn print_me_a_tree;
     fn extinction_probability; 
     fn branch_probability; 
+    fn branch_probability2;
     fn likelihood; 
     fn bds_likelihood; 
 }

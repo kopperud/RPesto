@@ -24,6 +24,9 @@ extinction_probability <- function(lambda, mu, t, tol) .Call(wrap__extinction_pr
 branch_probability <- function(lambda, mu, t, tol) .Call(wrap__branch_probability, lambda, mu, t, tol)
 
 #' @export
+branch_probability2 <- function(lambda_hat, mu_hat, eta, sd, n, t, tol) .Call(wrap__branch_probability2, lambda_hat, mu_hat, eta, sd, n, t, tol)
+
+#' @export
 likelihood <- function(lambda, mu, rho, phy, tol) .Call(wrap__likelihood, lambda, mu, rho, phy, tol)
 
 #' @export

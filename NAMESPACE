@@ -2,6 +2,7 @@
 
 export(bds_likelihood)
 export(branch_probability)
+export(branch_probability2)
 export(extinction_probability)
 export(hello_world)
 export(likelihood)
