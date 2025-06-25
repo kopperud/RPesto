@@ -32,5 +32,8 @@ likelihood <- function(lambda, mu, rho, phy, tol) .Call(wrap__likelihood, lambda
 #' @export
 bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, phy, tol) .Call(wrap__bds_likelihood, lambda_hat, mu_hat, eta, rho, sd, n, phy, tol)
 
+#' @export
+foo <- function(lambda_hat, mu_hat, eta, rho, sd, n, height, tol) .Call(wrap__foo, lambda_hat, mu_hat, eta, rho, sd, n, height, tol)
+
 
 # nolint end

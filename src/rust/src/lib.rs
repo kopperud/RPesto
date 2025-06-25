@@ -95,12 +95,8 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
 
     let mut m = Vec::new();
 
-    //let n_times = 100;
-    //let times2 = sequence(0.0, t, n_times);
     for p in probs{
         m.push(p[0]);
-    //for t in times2.iter(){
-        //m.push(spline.interpolate(*t)[0]);
     }
 
     let res = list!(t = &times, probs = &m);
@@ -139,14 +135,15 @@ fn branch_probability2(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, n: usize
     let (lambda, mu) = rate_categories(lambda_hat, mu_hat, sd, n);
     let rho = 1.0;
     let k = n*n;
+
+    //return list!(lambda = lambda, mu = mu);
+
     let ode = BranchProbabilityMultiState::new(lambda.clone(), mu.clone(), eta, rho, height, k, tol);
 
     let u0 = vec![1.0; k];
     let t0 = 0.0;
 
-
-
-    let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 10, tol);
+    let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 4, tol);
 
     let nrows = probs.len();
     let ncols = probs[0].len();
@@ -156,6 +153,47 @@ fn branch_probability2(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, n: usize
     let res = list!(t = &times, probs = m);
 
     return res;
+}
+
+/// @export
+#[extendr]
+fn foo(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, height: f64, tol: f64) -> (){
+
+    let (lambda, mu) = rate_categories(lambda_hat, mu_hat, sd, n);
+
+    let ode = ExtinctionMultiState{
+        lambda: lambda.clone(),
+        mu: mu.clone(),
+        eta
+    };
+
+    let k = n*n;
+    let u0 = vec![1.0 - rho; k];
+    let t0 = 0.0;
+    let t1 = height;
+    let dense = true;
+    let n_steps_init = 10;
+
+    let options = Options::default();
+
+    let (times, sol) = ode.solve_dopri45(u0.clone(), t0, t1, dense, n_steps_init, tol);
+    microbench::bench(&options, "solving ODE", || ode.solve_dopri45(u0.clone(), t0, t1, false, 10, tol) );
+    
+    let extinction_probability = MonotonicCubicSpline::new(times, sol, k);
+
+    microbench::bench(&options, "interpolate at t=1.0", || extinction_probability.interpolate(1.0) );
+    microbench::bench(&options, "interpolate at t=60.0", || extinction_probability.interpolate(60.0) );
+
+    let mut du = Vec::new();
+    let mut u = Vec::new();
+    for _ in 0..k{
+        du.push(0.0);
+        u.push(0.0);
+    }
+    microbench::bench(&options, "gradient for extinction SSE", || ode.gradient(&mut du, &u, &0.0) );
+
+
+
 }
 
 
@@ -172,4 +210,5 @@ extendr_module! {
     fn branch_probability2;
     fn likelihood; 
     fn bds_likelihood; 
+    fn foo; 
 }
