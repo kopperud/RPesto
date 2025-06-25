@@ -27,10 +27,7 @@ branch_probability <- function(lambda, mu, t, tol) .Call(wrap__branch_probabilit
 likelihood <- function(lambda, mu, rho, phy, tol) .Call(wrap__likelihood, lambda, mu, rho, phy, tol)
 
 #' @export
-lognormal_quantile <- function(x, location, sigma) .Call(wrap__lognormal_quantile, x, location, sigma)
-
-#' @export
-make_quantiles <- function(location, sigma, k) .Call(wrap__make_quantiles, location, sigma, k)
+bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, phy, tol) .Call(wrap__bds_likelihood, lambda_hat, mu_hat, eta, rho, sd, n, phy, tol)
 
 
 # nolint end

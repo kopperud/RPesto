@@ -1,7 +1,5 @@
 use extendr_api::prelude::*;
 use microbench::{self, Options};
-use statrs::distribution::{Normal,LogNormal,ContinuousCDF};
-
 
 use crate::spline::*;
 use crate::tokenizer::tokenize;
@@ -12,8 +10,10 @@ use crate::utils::*;
 use crate::odesolver::*;
 use crate::likelihood::*;
 use crate::models::*;
+use crate::categories::*;
 
 pub mod spline;
+pub mod categories;
 pub mod tokenizer;
 pub mod tree;
 pub mod parser;
@@ -46,6 +46,20 @@ fn likelihood(lambda: f64, mu: f64, rho: f64, phy: String, tol: f64) -> f64{
     let model = ConstantBD{lambda, mu, rho};
     let tree = parse_tree(phy); 
     let lnl = model.likelihood(&tree, tol);
+
+    return lnl;
+}
+
+/// @export
+#[extendr]
+fn bds_likelihood(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, phy: String, tol: f64) -> f64{
+    println!("asd");
+    let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
+    println!("asd2");
+    let tree = parse_tree(phy); 
+    println!("asd3");
+    let lnl = model.likelihood(&tree, tol);
+    println!("asd4");
 
     return lnl;
 }
@@ -134,52 +148,6 @@ fn error_function(x: f64) -> f64{
     return res;
 }
 
-/// @export
-#[extendr]
-pub fn lognormal_quantile(x: f64, location: f64, sigma: f64) -> f64{
-    let d = LogNormal::new(location, sigma).unwrap();
-    let q = d.inverse_cdf(x);
-    return q;
-}
-
-
-/// @export
-#[extendr]
-pub fn make_quantiles(location: f64, sigma: f64, k: usize) -> Vec<f64>{
-    let mut quantiles = Vec::new();
-
-    let d = LogNormal::new(location, sigma).expect("expected to create lognormal distribution");
-
-    let step = 0.5;
-
-    for i in 1..(k+1){
-        let p = ((i as f64) - step)/(k as f64);
-        let q = d.inverse_cdf(p);
-        quantiles.push(q);
-    }
-
-    return quantiles;
-}
-
-pub fn rate_categories(lambda: f64, mu: f64, sd: f64, k: usize) -> (Vec<f64>, Vec<f64>){
-    let lambda_quantiles = make_quantiles(lambda.ln(), sd, k);
-    let mu_quantiles = make_quantiles(mu.ln(), sd, k);
-
-    let mut lambdas = Vec::new();
-    let mut mus = Vec::new();
-
-    for i in 0..k{
-        for j in 0..k{
-            lambdas.push(lambda_quantiles[i]);
-            mus.push(mu_quantiles[j]);
-        }
-    }
-
-    let res = (lambdas, mus);
-
-    return res;
-}
-
 
 
 
@@ -194,6 +162,5 @@ extendr_module! {
     fn extinction_probability; 
     fn branch_probability; 
     fn likelihood; 
-    fn lognormal_quantile; 
-    fn make_quantiles;
+    fn bds_likelihood; 
 }

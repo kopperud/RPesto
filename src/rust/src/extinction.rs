@@ -11,13 +11,13 @@ impl Gradient for Extinction{
     }
 }
 
-pub struct ExtinctionMultistate{
+pub struct ExtinctionMultiState{
     pub lambda: Vec<f64>,
     pub mu: Vec<f64>,
     pub eta: f64,
 }
 
-impl Gradient for ExtinctionMultistate{
+impl Gradient for ExtinctionMultiState{
     fn gradient(&self, du: &mut Vec<f64>, u: &Vec<f64>, _t: &f64 ) -> (){
         let k = u.len();
         let r = self.eta / (k as f64 - 1.0);
