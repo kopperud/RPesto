@@ -24,10 +24,13 @@ extinction_probability <- function(lambda, mu, t, tol) .Call(wrap__extinction_pr
 branch_probability <- function(lambda, mu, t, tol) .Call(wrap__branch_probability, lambda, mu, t, tol)
 
 #' @export
-likelihood <- function(lambda, mu, phy, tol) .Call(wrap__likelihood, lambda, mu, phy, tol)
+likelihood <- function(lambda, mu, rho, phy, tol) .Call(wrap__likelihood, lambda, mu, rho, phy, tol)
 
 #' @export
-lognormal_quantile <- function(x, scale, sigma) .Call(wrap__lognormal_quantile, x, scale, sigma)
+lognormal_quantile <- function(x, location, sigma) .Call(wrap__lognormal_quantile, x, location, sigma)
+
+#' @export
+make_quantiles <- function(location, sigma, k) .Call(wrap__make_quantiles, location, sigma, k)
 
 
 # nolint end
