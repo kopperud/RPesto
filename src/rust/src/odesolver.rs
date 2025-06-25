@@ -164,7 +164,30 @@ where
             error_estimate = error_estimate / (n as f64);
 
             // accept solution
-            if error_estimate < error_tolerance{
+            let mut accept = false;
+
+            let mut any_negatives= false;
+
+            for i in 0..n{
+                let current_u = u[i] + delta_five[i]; 
+                if current_u < 0.0{
+                    any_negatives = true;
+                    break;
+                }
+            }
+
+            /*
+            if any_negatives{
+                println!("found negative value at delta_t={}$", delta_t);
+
+            }
+            */
+
+            if (error_estimate < error_tolerance) & (!any_negatives) {
+                accept = true;
+            }
+
+            if accept{
                 if dense{
                     sol.push(u.clone());
                     times.push(t.clone());

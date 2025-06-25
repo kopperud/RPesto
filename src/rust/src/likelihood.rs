@@ -90,8 +90,10 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
         for i in 0..self.k{
             lnl += (root_prior[i] * p[i]).ln();
+            //println!("lnl = {}", lnl);
         }
         lnl += sf;
+        //println!("lnl = {}", lnl);
 
         return lnl;
     }
@@ -132,14 +134,20 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         let t0 = child_time;
         let t1 = time;
 
-        //println!("t0: {}, t1: {}", t0, t1);
+        println!("t0: {}, t1: {}", t0, t1);
 
         let (_, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
 
         //println!("u0: {:?}", u);
-        //println!("sol: {:?}", sol[0][0]);
+        println!("sol: {:?}", sol[0]);
 
         let alpha: f64 = sol[0].iter().sum();
+
+        let z = alpha < 0.0;
+        if z {
+            println!("log alpha = {}", alpha.ln());
+            println!("p(before normalizing) = {:?}", sol[0]);
+        }
 
         //let p = sol[0].clone();
         let mut p = Vec::new();
@@ -147,7 +155,6 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
             p.push(sol[0][i] / alpha);
         }
         //log_sf += sol[0].iter();
-        println!("alpha = {}", alpha);
         log_sf += alpha.ln();
             
         return (p, log_sf);

@@ -61,6 +61,9 @@ fn bds_likelihood(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: 
     let lnl = model.likelihood(&tree, tol);
     println!("asd4");
 
+    //println!("lambda = {:?}", model.lambda);
+    //println!("mu = {:?}", model.mu);
+
     return lnl;
 }
 
