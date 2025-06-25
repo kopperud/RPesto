@@ -6,12 +6,13 @@ use crate::branch_probability::*;
 use crate::models::*;
 
 
-// Two solvers
+// the likelihood trait 
 pub trait Likelihood{
     fn likelihood( &self, tree: &Box<Node>, tol: f64 ) -> f64;
-    fn likelihood_po( &self, node: &Box<Node>, ode: &BranchProbability, time: f64, tol: f64) -> (f64, f64);
+    fn likelihood_po( &self, node: &Box<Node>, ode: &BranchProbability, time: f64, tol: f64) -> (Vec<f64>, f64);
 }
 
+// the likelihood implementation
 impl Likelihood for ConstantBD{
     fn likelihood(&self, tree: &Box<Node>, tol: f64) -> f64{
         let height = treeheight(&tree);
@@ -22,11 +23,11 @@ impl Likelihood for ConstantBD{
 
         let (p, sf) = self.likelihood_po(&tree, &ode, time, tol);
 
-        let lnl = p.ln() + sf;
+        let lnl = p[0].ln() + sf;
         return lnl;
     }
 
-    fn likelihood_po(&self, node: &Box<Node>, ode: &BranchProbability, time: f64, tol: f64) -> (f64, f64){
+    fn likelihood_po(&self, node: &Box<Node>, ode: &BranchProbability, time: f64, tol: f64) -> (Vec<f64>, f64){
 
         let mut u = 1.0;
         let mut log_sf = 0.0;
@@ -36,7 +37,7 @@ impl Likelihood for ConstantBD{
         for child in node.children.iter(){
             let (child_u, child_sf) = self.likelihood_po(child, ode, child_time, tol);
 
-            u *= child_u;
+            u *= child_u[0];
             log_sf += child_sf;
         }
 
@@ -63,28 +64,14 @@ impl Likelihood for ConstantBD{
         //println!("u0: {:?}", u);
         //println!("sol: {:?}", sol[0][0]);
 
-        let mut p = sol[0][0];
+        log_sf += sol[0][0].ln();
 
-        log_sf += p.ln();
-
-        p = 1.0;
+        let p = vec![1.0];
             
         return (p, log_sf);
     }
 }
 
-
-/*
-pub fn likelihood_cbdp(lambda: f64, mu: f64, rho: f64, s: String, tol: f64) -> f64{
-    let tree = parse_tree(s);
-
-    let model = ConstantBD{lambda, mu, rho};
-
-    let lnl = model.likelihood(&tree, tol);
-
-    return lnl;
-}
-*/
 
 
 
