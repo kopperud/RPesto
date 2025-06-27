@@ -5,6 +5,8 @@ use crate::height::*;
 use crate::branch_probability::*;
 use crate::models::*;
 
+use rayon::iter::ParallelIterator;
+use rayon::prelude::*;
 
 // the likelihood trait 
 pub trait Likelihood<T>{
@@ -19,7 +21,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
 
         let time = height;
 
-        let ode = BranchProbability::new(self.lambda, self.mu, height, tol);
+        let ode = BranchProbability::new(self.lambda, self.mu);
 
         let (p, sf) = self.likelihood_po(&tree, &ode, time, tol);
 
@@ -29,7 +31,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
 
     fn likelihood_po(&self, node: &Box<Node>, ode: &BranchProbability, time: f64, tol: f64) -> (Vec<f64>, f64){
 
-        let mut u = 1.0;
+        let mut u = vec![0.0, 1.0];
         let mut log_sf = 0.0;
 
         let child_time = time - node.length;
@@ -37,20 +39,22 @@ impl Likelihood<BranchProbability> for ConstantBD{
         for child in node.children.iter(){
             let (child_u, child_sf) = self.likelihood_po(child, ode, child_time, tol);
 
-            u *= child_u[0];
+            u[0] = child_u[0];
+            u[1] *= child_u[1];
+
             log_sf += child_sf;
         }
 
         let n_children = node.children.len();
         if n_children > 1{
             for _ in 0..(n_children-1){
-                u *= self.lambda;
+                u[1] *= self.lambda;
             }
         }else{
-            u = self.rho;
+            u[1] = self.rho;
         }
             
-        let u0 = vec![u];
+        let u0 = u;
         let dense = false;
         let n_steps_init = 4;
 
@@ -59,9 +63,10 @@ impl Likelihood<BranchProbability> for ConstantBD{
 
         let (_, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
 
-        log_sf += sol[0][0].ln();
 
-        let p = vec![1.0];
+        let mut p = sol[0].clone();
+        log_sf += p[1].ln();
+        p[1] = 1.0;
             
         return (p, log_sf);
     }
@@ -76,16 +81,16 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
         let time = height;
 
-        let ode = BranchProbabilityMultiState::new(self.lambda.clone(), self.mu.clone(), self.eta, self.rho, height, self.k, tol);
+        let ode = BranchProbabilityMultiState::new(self.lambda.clone(), self.mu.clone(), self.eta);
 
         let (p, sf) = self.likelihood_po(&tree, &ode, time, tol);
 
         let root_prior = vec![1.0 / (self.k as f64); self.k];
 
         let mut lnl = 0.0;
-        let mut pr= 0.0;
+        let mut pr = 0.0;
         for i in 0..self.k{
-            pr += root_prior[i] * p[i];
+            pr += root_prior[i] * p[self.k+i];
         }
         lnl += pr.ln() + sf;
 
@@ -94,30 +99,43 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
     fn likelihood_po(&self, node: &Box<Node>, ode: &BranchProbabilityMultiState, time: f64, tol: f64) -> (Vec<f64>, f64){
 
-        let mut u = vec![1.0; self.k];
+        let mut u = vec![0.0; self.k];
+        let b = vec![1.0; self.k];
+        u.extend(b);
+
         let mut log_sf = 0.0;
 
         let child_time = time - node.length;
 
-        for child in node.children.iter(){
-            let (child_u, child_sf) = self.likelihood_po(child, ode, child_time, tol);
+        let r: Vec<(Vec<f64>, f64)> = node
+            .children.par_iter()
+            .map(|child| {
+                let x = self.likelihood_po(child, ode, child_time, tol);
+                return x;
+            })
+        .collect();
+
+        for (child_u, child_sf) in r.iter(){
 
             for i in 0..self.k{
-                u[i] *= child_u[i];
+                u[i] = child_u[i];
+                u[self.k+i] *= child_u[self.k+i];
             }
             log_sf += child_sf;
         }
+
 
         let n_children = node.children.len();
         if n_children > 1{
             for _ in 0..(n_children-1){
                 for i in 0..self.k{
-                    u[i] *= self.lambda[i];
+                    u[self.k+i] *= self.lambda[i];
                 }
             }
         }else{
             for i in 0..self.k{
-                u[i] = self.rho;
+                u[i] = 1.0 - self.rho;
+                u[self.k+i] = self.rho;
             }
         }
             
@@ -130,12 +148,17 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
         let (_, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
 
-        let alpha: f64 = sol[0].iter().sum();
+        let alpha: f64 = sol[0][(self.k+1)..(2*self.k)].iter().sum();
 
         let mut p = Vec::new();
         for i in 0..self.k{
-            p.push(sol[0][i] / alpha);
+            p.push(sol[0][i]);
         }
+
+        for i in 0..self.k{
+            p.push(sol[0][self.k+i] / alpha);
+        }
+
         //log_sf += sol[0].iter();
         log_sf += alpha.ln();
             

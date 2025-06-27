@@ -58,6 +58,9 @@ fn bds_likelihood(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: 
     let lnl = model.likelihood(&tree, tol);
 
 
+    let options = Options::default();
+    microbench::bench(&options, "calculating likelihood", || model.likelihood(&tree, tol) );
+
     return lnl;
 }
 
@@ -109,8 +112,8 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
 #[extendr]
 fn branch_probability(lambda: f64, mu: f64, t: f64, tol : f64) -> extendr_api::List{
 
-    let height = 60.0;
-    let ode = BranchProbability::new(lambda, mu, height, tol);
+    //let height = 60.0;
+    let ode = BranchProbability::new(lambda, mu);
     let u0 = vec![1.0];
     let t0 = 0.0;
 
@@ -138,9 +141,11 @@ fn branch_probability2(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, n: usize
 
     //return list!(lambda = lambda, mu = mu);
 
-    let ode = BranchProbabilityMultiState::new(lambda.clone(), mu.clone(), eta, rho, height, k, tol);
+    let ode = BranchProbabilityMultiState::new(lambda.clone(), mu.clone(), eta);
 
-    let u0 = vec![1.0; k];
+    let mut u0 = vec![1.0 - rho; k];
+    u0.extend(vec![rho; k]);
+
     let t0 = 0.0;
 
     let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 4, tol);
