@@ -32,9 +32,9 @@ Phylogeny$new <- function(newick) .Call(wrap__Phylogeny__new, newick)
 
 Phylogeny$print <- function() .Call(wrap__Phylogeny__print, self)
 
-Phylogeny$bd_likelihood <- function(lambda, mu, rho, tol) .Call(wrap__Phylogeny__bd_likelihood, self, lambda, mu, rho, tol)
+Phylogeny$bd_likelihood <- function(lambda, mu, rho, tol, store) .Call(wrap__Phylogeny__bd_likelihood, self, lambda, mu, rho, tol, store)
 
-Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__bds_likelihood, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
+Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol, store) .Call(wrap__Phylogeny__bds_likelihood, self, lambda_hat, mu_hat, eta, rho, sd, n, tol, store)
 
 #' @export
 `$.Phylogeny` <- function (self, name) { func <- Phylogeny[[name]]; environment(func) <- environment(); func }

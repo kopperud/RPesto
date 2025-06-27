@@ -201,15 +201,15 @@ impl Phylogeny {
         println!("{:?}", self.tree); 
     }
 
-    fn bd_likelihood(&self, lambda: f64, mu: f64, rho: f64, tol: f64) -> f64{
+    fn bd_likelihood(&mut self, lambda: f64, mu: f64, rho: f64, tol: f64, store: bool) -> f64{
         let model = ConstantBD{lambda, mu, rho};
-        let lnl = model.likelihood(&self.tree, tol);
+        let lnl = model.likelihood(&mut self.tree, tol, store);
         return lnl;
     }
 
-    pub fn bds_likelihood(&self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> f64{
+    pub fn bds_likelihood(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64, store: bool) -> f64{
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
-        let lnl = model.likelihood(&self.tree, tol);
+        let lnl = model.likelihood(&mut self.tree, tol, store);
 
         //let options = Options::default();
         //microbench::bench(&options, "calculating likelihood", || model.likelihood(&tree, tol) );

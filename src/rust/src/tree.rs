@@ -17,6 +17,7 @@ pub struct Node {
     pub length: f64,
     //pub index: i32,
     pub children: Vec<Box<Node>>,
+    pub u_old: Option<Vec<f64>>,
 }
 
 
@@ -26,7 +27,7 @@ impl Node {
         let children: Vec<Box<Node>> = Vec::new(); 
         //let index = 0;
         //Self {label, length, index, children }
-        Self {label, length, children }
+        Self {label, length, children, u_old: None}
     }
 
     /*

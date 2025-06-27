@@ -19,6 +19,7 @@ pub fn parse_newick(tokens: VecDeque<&str>) -> Box<Node> {
         label: "".to_string(),
         length: 0.0,
         children: Vec::new(),
+        u_old: None,
     });
     
     // strip semicolon
@@ -55,6 +56,7 @@ fn terminaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>){
         label: species_name.to_string(),
         length: l,
         children: Vec::new(),
+        u_old: None,
     });
 
     parent_node.children.push(node);
@@ -77,6 +79,7 @@ fn internaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>) {
         label: internal_label,
         length: l,
         children: Vec::new(),
+        u_old: None,
     });
 
 

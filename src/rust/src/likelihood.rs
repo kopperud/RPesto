@@ -1,5 +1,4 @@
 use crate::odesolver::Solve;
-use crate::parser::*;
 use crate::tree::*;
 use crate::height::*;
 use crate::branch_probability::*;
@@ -10,26 +9,26 @@ use rayon::prelude::*;
 
 // the likelihood trait 
 pub trait Likelihood<T>{
-    fn likelihood( &self, tree: &Box<Node>, tol: f64 ) -> f64;
-    fn likelihood_po( &self, node: &Box<Node>, ode: &T, time: f64, tol: f64) -> (Vec<f64>, f64);
+    fn likelihood( &self, tree: &mut Box<Node>, tol: f64, store: bool) -> f64;
+    fn likelihood_po( &self, node: &mut Box<Node>, ode: &T, time: f64, tol: f64, store: bool) -> (Vec<f64>, f64);
 }
 
-// the likelihood implementation
+// the likelihood implementation for constant-rate birth death model
 impl Likelihood<BranchProbability> for ConstantBD{
-    fn likelihood(&self, tree: &Box<Node>, tol: f64) -> f64{
+    fn likelihood(&self, tree: &mut Box<Node>, tol: f64, store: bool) -> f64{
         let height = treeheight(&tree);
 
         let time = height;
 
         let ode = BranchProbability::new(self.lambda, self.mu);
 
-        let (p, sf) = self.likelihood_po(&tree, &ode, time, tol);
+        let (p, sf) = self.likelihood_po(tree, &ode, time, tol, store);
 
         let lnl = p[0].ln() + sf;
         return lnl;
     }
 
-    fn likelihood_po(&self, node: &Box<Node>, ode: &BranchProbability, time: f64, tol: f64) -> (Vec<f64>, f64){
+    fn likelihood_po(&self, node: &mut Box<Node>, ode: &BranchProbability, time: f64, tol: f64, store: bool) -> (Vec<f64>, f64){
 
         let mut u = vec![0.0, 1.0];
         let mut log_sf = 0.0;
@@ -37,9 +36,12 @@ impl Likelihood<BranchProbability> for ConstantBD{
         let child_time = time - node.length;
 
         let r: Vec<(Vec<f64>, f64)> = node
-            .children.par_iter()
+            .children
+            .iter_mut()
+            .par_bridge()
+            //.children.par_iter()
             .map(|child| {
-                let x = self.likelihood_po(child, ode, child_time, tol);
+                let x = self.likelihood_po(child, ode, child_time, tol, store);
                 return x;
             })
         .collect();
@@ -68,9 +70,13 @@ impl Likelihood<BranchProbability> for ConstantBD{
         let t1 = time;
 
         let (_, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
-
-
+    
         let mut p = sol[0].clone();
+
+        if store{
+            node.u_old = Some(p.clone());
+        }
+
         log_sf += p[1].ln();
         p[1] = 1.0;
             
@@ -80,16 +86,16 @@ impl Likelihood<BranchProbability> for ConstantBD{
 
 
 
-// the likelihood implementation for SSE
+// the likelihood implementation for birth-death-shift model
 impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
-    fn likelihood(&self, tree: &Box<Node>, tol: f64) -> f64{
+    fn likelihood(&self, tree: &mut Box<Node>, tol: f64, store: bool) -> f64{
         let height = treeheight(&tree);
 
         let time = height;
 
         let ode = BranchProbabilityMultiState::new(self.lambda.clone(), self.mu.clone(), self.eta);
 
-        let (p, sf) = self.likelihood_po(&tree, &ode, time, tol);
+        let (p, sf) = self.likelihood_po(tree, &ode, time, tol, store);
 
         let root_prior = vec![1.0 / (self.k as f64); self.k];
 
@@ -103,7 +109,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         return lnl;
     }
 
-    fn likelihood_po(&self, node: &Box<Node>, ode: &BranchProbabilityMultiState, time: f64, tol: f64) -> (Vec<f64>, f64){
+    fn likelihood_po(&self, node: &mut Box<Node>, ode: &BranchProbabilityMultiState, time: f64, tol: f64, store: bool) -> (Vec<f64>, f64){
 
         let mut u = vec![0.0; self.k];
         let b = vec![1.0; self.k];
@@ -114,9 +120,12 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         let child_time = time - node.length;
 
         let r: Vec<(Vec<f64>, f64)> = node
-            .children.par_iter()
+            .children
+            .iter_mut()
+            .par_bridge()
+            //.children.par_iter()
             .map(|child| {
-                let x = self.likelihood_po(child, ode, child_time, tol);
+                let x = self.likelihood_po(child, ode, child_time, tol, store);
                 return x;
             })
         .collect();
@@ -165,7 +174,10 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
             p.push(sol[0][self.k+i] / alpha);
         }
 
-        //log_sf += sol[0].iter();
+        if store{
+            node.u_old = Some(p.clone());
+        }
+
         log_sf += alpha.ln();
             
         return (p, log_sf);
