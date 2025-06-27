@@ -11,6 +11,7 @@ use crate::odesolver::*;
 use crate::likelihood::*;
 use crate::models::*;
 use crate::categories::*;
+use crate::tree::Node;
 
 pub mod spline;
 pub mod categories;
@@ -50,19 +51,7 @@ fn likelihood(lambda: f64, mu: f64, rho: f64, phy: String, tol: f64) -> f64{
     return lnl;
 }
 
-/// @export
-#[extendr]
-fn bds_likelihood(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, phy: String, tol: f64) -> f64{
-    let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
-    let tree = parse_tree(phy); 
-    let lnl = model.likelihood(&tree, tol);
 
-
-    let options = Options::default();
-    microbench::bench(&options, "calculating likelihood", || model.likelihood(&tree, tol) );
-
-    return lnl;
-}
 
 fn sequence(from: f64, to: f64, num: usize) -> Vec<f64> {
     let mut v = Vec::new();
@@ -160,6 +149,7 @@ fn branch_probability2(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, n: usize
     return res;
 }
 
+/*
 /// @export
 #[extendr]
 fn foo(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, height: f64, tol: f64) -> (){
@@ -196,11 +186,38 @@ fn foo(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, heig
         u.push(0.0);
     }
     microbench::bench(&options, "gradient for extinction SSE", || ode.gradient(&mut du, &u, &0.0) );
+}
+*/
 
 
-
+#[derive(Debug)]
+#[extendr]
+/// @export
+struct Phylogeny {
+    pub tree: Box<Node>,
 }
 
+#[extendr]
+impl Phylogeny {
+    fn new(newick: String) -> Self {
+        Self {
+            tree: parse_tree(newick)
+        }
+    }
+
+    fn print(&self) -> () {
+        println!("{:?}", self.tree); 
+    }
+
+    pub fn bds_likelihood(&self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> f64{
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
+        let lnl = model.likelihood(&self.tree, tol);
+
+        //let options = Options::default();
+        //microbench::bench(&options, "calculating likelihood", || model.likelihood(&tree, tol) );
+        return lnl;
+    }
+}
 
 
 // Macro to generate exports.
@@ -214,6 +231,29 @@ extendr_module! {
     fn branch_probability; 
     fn branch_probability2;
     fn likelihood; 
-    fn bds_likelihood; 
-    fn foo; 
+    impl Phylogeny;
 }
+
+//extendr_mo!(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

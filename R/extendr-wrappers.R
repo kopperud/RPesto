@@ -29,11 +29,19 @@ branch_probability2 <- function(lambda_hat, mu_hat, eta, sd, n, t, tol) .Call(wr
 #' @export
 likelihood <- function(lambda, mu, rho, phy, tol) .Call(wrap__likelihood, lambda, mu, rho, phy, tol)
 
-#' @export
-bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, phy, tol) .Call(wrap__bds_likelihood, lambda_hat, mu_hat, eta, rho, sd, n, phy, tol)
+Phylogeny <- new.env(parent = emptyenv())
+
+Phylogeny$new <- function(newick) .Call(wrap__Phylogeny__new, newick)
+
+Phylogeny$print <- function() .Call(wrap__Phylogeny__print, self)
+
+Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__bds_likelihood, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
 
 #' @export
-foo <- function(lambda_hat, mu_hat, eta, rho, sd, n, height, tol) .Call(wrap__foo, lambda_hat, mu_hat, eta, rho, sd, n, height, tol)
+`$.Phylogeny` <- function (self, name) { func <- Phylogeny[[name]]; environment(func) <- environment(); func }
+
+#' @export
+`[[.Phylogeny` <- `$.Phylogeny`
 
 
 # nolint end
