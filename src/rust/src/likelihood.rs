@@ -51,6 +51,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
                 u[1] *= self.lambda;
             }
         }else{
+            u[0] = 1.0 - self.rho;
             u[1] = self.rho;
         }
             

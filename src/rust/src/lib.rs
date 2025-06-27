@@ -228,7 +228,6 @@ extendr_module! {
     fn extinction_probability; 
     fn branch_probability; 
     fn branch_probability2;
-    fn likelihood; 
     impl Phylogeny;
 }
 

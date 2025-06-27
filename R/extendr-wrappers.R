@@ -26,14 +26,13 @@ branch_probability <- function(lambda, mu, t, tol) .Call(wrap__branch_probabilit
 #' @export
 branch_probability2 <- function(lambda_hat, mu_hat, eta, sd, n, t, tol) .Call(wrap__branch_probability2, lambda_hat, mu_hat, eta, sd, n, t, tol)
 
-#' @export
-likelihood <- function(lambda, mu, rho, phy, tol) .Call(wrap__likelihood, lambda, mu, rho, phy, tol)
-
 Phylogeny <- new.env(parent = emptyenv())
 
 Phylogeny$new <- function(newick) .Call(wrap__Phylogeny__new, newick)
 
 Phylogeny$print <- function() .Call(wrap__Phylogeny__print, self)
+
+Phylogeny$bd_likelihood <- function(lambda, mu, rho, tol) .Call(wrap__Phylogeny__bd_likelihood, self, lambda, mu, rho, tol)
 
 Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__bds_likelihood, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
 
