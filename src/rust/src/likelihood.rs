@@ -69,12 +69,13 @@ impl Likelihood<BranchProbability> for ConstantBD{
         let t0 = child_time;
         let t1 = time;
 
-        let (_, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
+        let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
     
         let mut p = sol[0].clone();
 
         if store{
-            node.u_old = Some(p.clone());
+            node.u_dense = Some(sol.clone());
+            node.t_dense = Some(times);
         }
 
         log_sf += p[1].ln();
@@ -123,7 +124,6 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
             .children
             .iter_mut()
             .par_bridge()
-            //.children.par_iter()
             .map(|child| {
                 let x = self.likelihood_po(child, ode, child_time, tol, store);
                 return x;
@@ -161,7 +161,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         let t0 = child_time;
         let t1 = time;
 
-        let (_, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
+        let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
 
         let alpha: f64 = sol[0][(self.k+1)..(2*self.k)].iter().sum();
 
@@ -175,7 +175,9 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         }
 
         if store{
-            node.u_old = Some(p.clone());
+            //node.u_dense = Some(p.clone());
+            node.u_dense = Some(sol.clone());
+            node.t_dense = Some(times);
         }
 
         log_sf += alpha.ln();
