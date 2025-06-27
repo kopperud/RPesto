@@ -206,9 +206,16 @@ where
             number_of_steps += 1;
         }
         //println!("number of steps (dopri45): {}", number_of_steps);
+        
+        if t0 == t1{
+            sol.push(u.clone());
+            times.push(t.clone());
+        }
 
         sol.push(u);
         times.push(t);
+
+
 
         return (times, sol);
     }

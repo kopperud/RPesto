@@ -1,7 +1,6 @@
 use extendr_api::prelude::*;
 use microbench::{self, Options};
 
-use crate::spline::*;
 use crate::tokenizer::tokenize;
 use crate::parser::*;
 use crate::extinction::*;
@@ -9,6 +8,7 @@ use crate::branch_probability::*;
 use crate::utils::*;
 use crate::odesolver::*;
 use crate::likelihood::*;
+use crate::preorder::*;
 use crate::models::*;
 use crate::categories::*;
 use crate::tree::Node;
@@ -20,6 +20,7 @@ pub mod tree;
 pub mod parser;
 pub mod extinction;
 pub mod likelihood;
+pub mod preorder;
 pub mod branch_probability;
 pub mod utils;
 pub mod odesolver;
@@ -214,6 +215,12 @@ impl Phylogeny {
         //let options = Options::default();
         //microbench::bench(&options, "calculating likelihood", || model.likelihood(&tree, tol) );
         return lnl;
+    }
+
+    pub fn bds_preorder(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> (){
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
+        model.preorder(&mut self.tree, tol);
+
     }
 }
 

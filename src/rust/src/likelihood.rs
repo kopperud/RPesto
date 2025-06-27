@@ -24,6 +24,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
 
         let (p, sf) = self.likelihood_po(tree, &ode, time, tol, store);
 
+
         let lnl = p[0].ln() + sf;
         return lnl;
     }

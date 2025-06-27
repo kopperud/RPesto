@@ -15,37 +15,46 @@ fit_bds <- function(phy, sampling_fraction, num_classes = 6, sd = 0.587, tol = 1
 
     store <- FALSE
 
-    ## fit constant-rate model
-    bd_opt <- stats::optim(
-        par = c(0.1, 0.05),
-        fn = function(x) phylogeny$bd_likelihood(x[1], x[2], sampling_fraction, tol, store),
-        lower = c(0.00001, 0.00001),
-        upper = c(2.0, 2.0),
-        method = "L-BFGS-B",
-        control = list(fnscale = -1),
-        hessian = FALSE,
-     )
+    if (FALSE){
+        ## fit constant-rate model
+        bd_opt <- stats::optim(
+            par = c(0.1, 0.05),
+            fn = function(x) phylogeny$bd_likelihood(x[1], x[2], sampling_fraction, tol, store),
+            lower = c(0.00001, 0.00001),
+            upper = c(2.0, 2.0),
+            method = "L-BFGS-B",
+            control = list(fnscale = -1),
+            hessian = FALSE,
+         )
 
-    lambdaml <- bd_opt$par[1]
-    muml <- bd_opt$par[2]
+        lambdaml <- bd_opt$par[1]
+        muml <- bd_opt$par[2]
 
 
-    ## fit BDS model
-    bds_opt <- stats::optim(
-        par = c(0.005),
-        fn = function(x) phylogeny$bds_likelihood(lambdaml, muml, x[1], sampling_fraction, sd, num_classes, tol, store),
-        lower = c(1e-8),
-        upper = c(1.0),
-        method = "Brent",
-        control = list(fnscale = -1),
-        hessian = FALSE,
-     )
+        ## fit BDS model
+        bds_opt <- stats::optim(
+            par = c(0.005),
+            fn = function(x) phylogeny$bds_likelihood(lambdaml, muml, x[1], sampling_fraction, sd, num_classes, tol, store),
+            lower = c(1e-8),
+            upper = c(1.0),
+            method = "Brent",
+            control = list(fnscale = -1),
+            hessian = FALSE,
+         )
 
-    res <- list(
-            "lambda_hat" = bd_opt$par[1],
-            "mu_hat" = bd_opt$par[2],
-            "eta" = bds_opt$par[1]
-            )
+        res <- list(
+                "lambda_hat" = bd_opt$par[1],
+                "mu_hat" = bd_opt$par[2],
+                "eta" = bds_opt$par[1]
+                )
+    }else{
+        lambdaml <- 0.18
+        muml <- 0.18
+        eta <- 0.0033
+        phylogeny$bds_likelihood(lambdaml, muml, eta, sampling_fraction, sd, num_classes, tol, TRUE)
+    }
+
+    phylogeny$preorder();
 
     return(res)
 }

@@ -1,3 +1,5 @@
+use itertools::all;
+
 use crate::odesolver::*;
 use crate::spline::*;
 use crate::extinction::*;
@@ -53,10 +55,6 @@ impl Gradient for BranchProbabilityMultiState{
         for i in 0..k{
             du[i] = self.mu[i] - (self.mu[i] + self.lambda[i] + self.eta) * u[i] + self.lambda[i] * u[i] * u[i] + r * (sum_E - u[i]);
         }
-
-
-
-
         let sum_D: f64 = u[(k+1)..(2*k)].iter().sum();
 
         for i in 0..k{
@@ -64,3 +62,75 @@ impl Gradient for BranchProbabilityMultiState{
         }
     }
 }
+
+
+pub struct ForwardProbability{
+    pub lambda: Vec<f64>,
+    pub mu: Vec<f64>,
+    pub eta: f64,
+    pub k: usize,
+    pub extinction_probability: MonotonicCubicSpline,
+    pub branch_probability: MonotonicCubicSpline,
+}
+
+impl ForwardProbability{
+    pub fn new(
+        lambda: Vec<f64>,
+        mu: Vec<f64>,
+        eta: f64,
+        times: Vec<f64>,
+        sol: Vec<Vec<f64>>,
+    ) -> ForwardProbability{
+        let k = lambda.len();
+
+        let mut e = Vec::new();
+        for i in 0..times.len(){
+            let mut v = Vec::new();
+            for j in 0..k{
+                v.push(sol[i][j]);
+            }
+            e.push(v);
+        }
+
+        let mut d = Vec::new();
+        for i in 0..times.len(){
+            let mut v = Vec::new();
+            for j in 0..k{
+                v.push(sol[i][k+j]);
+            }
+            d.push(v);
+        }
+
+        println!("asd1");
+
+        let extinction_probability = MonotonicCubicSpline::new(times.clone(), e, k);
+        println!("asd2");
+        let branch_probability = MonotonicCubicSpline::new(times, d, k);
+        println!("asd3");
+
+        let res = ForwardProbability{lambda, mu, eta, k, extinction_probability, branch_probability};
+        return res;
+    }
+}
+
+#[allow(nonstandard_style)]
+impl Gradient for ForwardProbability{
+    fn gradient(&self, dF: &mut Vec<f64>, F: &Vec<f64>, t: &f64 ) -> (){
+        let r = self.eta / (self.k as f64 - 1.0);
+
+        let Et = self.extinction_probability.interpolate(*t);
+
+        let sum_F: f64 = F[(self.k+1)..(2*self.k)].iter().sum();
+
+        for i in 0..self.k{
+            dF[i] = (self.mu[i] + self.lambda[i] + self.eta) * F[i] - 2.0 * self.lambda[i] * F[i] * Et[i] - r * (sum_F - F[i]);
+        }
+    }
+}
+
+// todo: 
+// calculate N(t)
+// calculate log Bayes factor
+
+
+

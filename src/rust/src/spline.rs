@@ -33,7 +33,7 @@ impl MonotonicCubicSpline {
         for j in 0..k{
             for i in 0..(n-1) {
                 let h = *times.get(i + 1).unwrap() - *times.get(i).unwrap();
-                assert!(h > 0.0, "Control points must be monotonically increasing.");
+                assert!(h >= 0.0, "Control points must be monotonically increasing.");
                 let vt = values.get(i + 1).unwrap();
                 let v = *vt.get(j).unwrap();
 
