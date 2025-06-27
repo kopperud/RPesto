@@ -41,15 +41,7 @@ fn print_me_a_tree(s: String) -> (){
     println!("{:?}", tree);
 }
 
-/// @export
-#[extendr]
-fn likelihood(lambda: f64, mu: f64, rho: f64, phy: String, tol: f64) -> f64{
-    let model = ConstantBD{lambda, mu, rho};
-    let tree = parse_tree(phy); 
-    let lnl = model.likelihood(&tree, tol);
 
-    return lnl;
-}
 
 
 
@@ -207,6 +199,12 @@ impl Phylogeny {
 
     fn print(&self) -> () {
         println!("{:?}", self.tree); 
+    }
+
+    fn bd_likelihood(&self, lambda: f64, mu: f64, rho: f64, tol: f64) -> f64{
+        let model = ConstantBD{lambda, mu, rho};
+        let lnl = model.likelihood(&self.tree, tol);
+        return lnl;
     }
 
     pub fn bds_likelihood(&self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> f64{
