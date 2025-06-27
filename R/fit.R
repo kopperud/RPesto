@@ -1,12 +1,14 @@
 #' fits the bds model
 #'
-#'
-#'
-#'
+#' @param phy an object of type phylo
+#' @param sampling_fraction the probability that each species was sampled in the tree
+#' @param num_classes the number of rate class discretizations (n), such that rate categories is k = n^2
+#' @param sd the spread parameter for the log-normal base distribution
+#' @param tol the local error threshold in the numerical ODE solver (per delta_t time step)
 #'
 #'
 #' @export
-fit_bds <- function(phy, rho, num_classes = 6, sd = 0.587, tol = 1e-6){
+fit_bds <- function(phy, sampling_fraction, num_classes = 6, sd = 0.587, tol = 1e-6){
     newick_string <- ape::write.tree(phy)
 
     phylogeny <- Phylogeny$new(newick_string)
@@ -14,9 +16,7 @@ fit_bds <- function(phy, rho, num_classes = 6, sd = 0.587, tol = 1e-6){
     ## fit constant-rate model
     bd_opt <- stats::optim(
         par = c(0.1, 0.05),
-    #fn bd_likelihood(&self, lambda: f64, mu: f64, rho: f64, tol: f64) -> f64{
-    #fn bd_likelihood(&self, lambda: f64, mu: f64, rho: f64, tol: f64) -> f64{
-        fn = function(x) phylogeny$bd_likelihood(x[1], x[2], rho, tol),
+        fn = function(x) phylogeny$bd_likelihood(x[1], x[2], sampling_fraction, tol),
         lower = c(0.00001, 0.00001),
         upper = c(2.0, 2.0),
         method = "L-BFGS-B",
@@ -31,8 +31,7 @@ fit_bds <- function(phy, rho, num_classes = 6, sd = 0.587, tol = 1e-6){
     ## fit BDS model
     bds_opt <- stats::optim(
         par = c(0.005),
-    #pub fn bds_likelihood(&self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> f64{
-        fn = function(x) phylogeny$bds_likelihood(lambdaml, muml, x[1], rho, sd, num_classes, tol),
+        fn = function(x) phylogeny$bds_likelihood(lambdaml, muml, x[1], sampling_fraction, sd, num_classes, tol),
         lower = c(1e-8),
         upper = c(1.0),
         method = "Brent",

@@ -4,7 +4,18 @@
 \alias{fit_bds}
 \title{fits the bds model}
 \usage{
-fit_bds(phy, rho, num_classes = 6, sd = 0.587, tol = 1e-06)
+fit_bds(phy, sampling_fraction, num_classes = 6, sd = 0.587, tol = 1e-06)
+}
+\arguments{
+\item{phy}{an object of type phylo}
+
+\item{sampling_fraction}{the probability that each species was sampled in the tree}
+
+\item{num_classes}{the number of rate class discretizations (n), such that rate categories is k = n^2}
+
+\item{sd}{the spread parameter for the log-normal base distribution}
+
+\item{tol}{the local error threshold in the numerical ODE solver (per delta_t time step)}
 }
 \description{
 fits the bds model
