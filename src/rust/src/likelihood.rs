@@ -36,12 +36,17 @@ impl Likelihood<BranchProbability> for ConstantBD{
 
         let child_time = time - node.length;
 
-        for child in node.children.iter(){
-            let (child_u, child_sf) = self.likelihood_po(child, ode, child_time, tol);
+        let r: Vec<(Vec<f64>, f64)> = node
+            .children.par_iter()
+            .map(|child| {
+                let x = self.likelihood_po(child, ode, child_time, tol);
+                return x;
+            })
+        .collect();
 
+        for (child_u, child_sf) in r.iter(){
             u[0] = child_u[0];
             u[1] *= child_u[1];
-
             log_sf += child_sf;
         }
 
