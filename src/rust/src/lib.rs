@@ -11,9 +11,11 @@ use crate::likelihood::*;
 use crate::preorder::*;
 use crate::models::*;
 use crate::categories::*;
+use crate::marginal_probability::*;
 use crate::tree::Node;
 
 pub mod spline;
+pub mod marginal_probability;
 pub mod categories;
 pub mod tokenizer;
 pub mod tree;
@@ -223,9 +225,9 @@ impl Phylogeny {
 
     }
 
-    //pub fn marginal_probability(&mut self) -> (){
-        //model.marginal_probability(&mut self.tree);
-    //}
+    pub fn marginal_probability(&mut self) -> (){
+        model.marginal_probability(&mut self.tree);
+    }
 }
 
 
