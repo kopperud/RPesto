@@ -187,8 +187,8 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
             let (e, d) = split_e_and_d(sol, self.k);
 
-            let extinction_probability = MonotonicCubicSpline::new(times.clone(), e, self.k);
-            let branch_probability = MonotonicCubicSpline::new(times.clone(), d, self.k);
+            let extinction_probability = MonotonicCubicSpline::new(times.clone(), e, self.k, true);
+            let branch_probability = MonotonicCubicSpline::new(times.clone(), d, self.k, true);
 
             node.extinction_probability = Some(extinction_probability);
             node.subtree_probability = Some(branch_probability);

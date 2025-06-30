@@ -101,9 +101,6 @@ impl ForwardProbability{
             d.push(v);
         }
 
-        let extinction_probability = MonotonicCubicSpline::new(times.clone(), e, k);
-        println!("asd2");
-        let subtree_probability = MonotonicCubicSpline::new(times, d, k);
         println!("asd3");
         */
 
@@ -118,11 +115,11 @@ impl Gradient for ForwardProbability{
         let r = self.eta / (self.k as f64 - 1.0);
 
         let Et = self.extinction_probability.interpolate(*t);
-
-        let sum_F: f64 = F[(self.k+1)..(2*self.k)].iter().sum();
+        let sum_F: f64 = F.iter().sum();
 
         for i in 0..self.k{
             dF[i] = (self.mu[i] + self.lambda[i] + self.eta) * F[i] - 2.0 * self.lambda[i] * F[i] * Et[i] - r * (sum_F - F[i]);
+            //dF[i] = - (self.mu[i] + self.lambda[i] + self.eta) * F[i] + 2.0 * self.lambda[i] * F[i] * Et[i] + r * (sum_F - F[i]);
         }
     }
 }

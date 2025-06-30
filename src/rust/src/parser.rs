@@ -21,6 +21,7 @@ pub fn parse_newick(tokens: VecDeque<&str>) -> Box<Node> {
         children: Vec::new(),
         extinction_probability: None,
         subtree_probability: None,
+        forward_probability: None,
         u_dense: None,
         t_dense: None,
     });
@@ -61,6 +62,7 @@ fn terminaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>){
         children: Vec::new(),
         extinction_probability: None,
         subtree_probability: None,
+        forward_probability: None,
         u_dense: None,
         t_dense: None,
     });
@@ -87,6 +89,7 @@ fn internaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>) {
         children: Vec::new(),
         extinction_probability: None,
         subtree_probability: None,
+        forward_probability: None,
         u_dense: None,
         t_dense: None,
     });

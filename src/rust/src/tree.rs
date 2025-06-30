@@ -21,6 +21,7 @@ pub struct Node {
     pub children: Vec<Box<Node>>,
     pub extinction_probability: Option<MonotonicCubicSpline>,
     pub subtree_probability: Option<MonotonicCubicSpline>,
+    pub forward_probability: Option<MonotonicCubicSpline>,
     pub u_dense: Option<Vec<Vec<f64>>>,
     pub t_dense: Option<Vec<f64>>,
 }
@@ -38,6 +39,7 @@ impl Node {
             children,
             extinction_probability: None,
             subtree_probability: None,
+            forward_probability: None,
             u_dense: None,
             t_dense: None
         }

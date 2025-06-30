@@ -114,11 +114,19 @@ where
 
         let mut number_of_steps = 0;
 
-        while t < t1 {
+        let mut c = go(&t, &t1, &delta_t);
+
+
+        //while t < t1 {
+        while c{
             // if overshoot, shorten delta_t
-            if (t + delta_t) > t1{
+            if overshoot(t, t1, delta_t){
                 delta_t = t1 - t;
             }
+
+            //println!("delta_t = {}", delta_t);
+            //println!("t = {}", t);
+            //println!("t1 = {}", t1);
 
             self.gradient(&mut k1, &u, &t);
 
@@ -163,29 +171,35 @@ where
             }
             error_estimate = error_estimate / (n as f64);
 
+            //println!("error_estimate = {}", error_estimate);
+
             // accept solution
             let mut accept = false;
 
-            let mut any_negatives= false;
+            let mut any_negatives = false;
 
             for i in 0..n{
                 let current_u = u[i] + delta_five[i]; 
                 if current_u < 0.0{
                     any_negatives = true;
-                    break;
+                    //break;
                 }
             }
+            //println!("u = {:?}", u);
+            //println!("delta_five = {:?}", delta_five);
 
             /*
             if any_negatives{
                 println!("found negative value at delta_t={}$", delta_t);
-
             }
             */
 
             if (error_estimate < error_tolerance) & (!any_negatives) {
                 accept = true;
             }
+
+            //println!("any negatives = {}", any_negatives);
+            //println!("accept = {}", accept);
 
             if accept{
                 if dense{
@@ -198,12 +212,19 @@ where
                 }
                 t += delta_t;
 
+                //println!("accept ODE step");
+
             // reject, go again with smaller delta t
             }else{
+                //println!("delta_t before = {}", delta_t);
                 delta_t *= 0.4;
                 //println!("error too large, go again");
+                //println!("delta_t after shortening = {}", delta_t);
             }
             number_of_steps += 1;
+
+            c = go(&t, &t1, &delta_t);
+            //println!("delta_t now = {}", delta_t);
         }
         //println!("number of steps (dopri45): {}", number_of_steps);
         
@@ -219,6 +240,37 @@ where
 
         return (times, sol);
     }
+}
+
+fn go(t: &f64, t1: &f64, delta_t: &f64) -> bool{
+    let mut res = false;
+
+    //println!("delta_t before: {}", delta_t);
+
+    //if delta_t == &0.0{
+    if delta_t > &0.0{
+        res = t < t1;
+    }else if delta_t < &0.0{
+        res = t > t1;
+    }
+
+    //println!("delta_t after: {}", delta_t);
+
+    return res;
+}
+
+fn overshoot(t: f64, t1: f64, delta_t: f64) -> bool{
+    let mut res = false;
+
+    if delta_t > 0.0{
+        res = (t + delta_t) > t1;
+    }else if delta_t < 0.0{
+        res = (t + delta_t) < t1;
+    }else{
+        panic!("asd");
+    }
+
+    return res;
 }
 
 // The Butcher tableau for the dopri45 algorithm

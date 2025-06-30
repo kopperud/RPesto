@@ -19,7 +19,7 @@ pub struct MonotonicCubicSpline {
 
 impl MonotonicCubicSpline {
 
-    pub fn new(times : Vec<f64>, values : Vec<Vec<f64>>, k: usize) -> MonotonicCubicSpline {
+    pub fn new(times : Vec<f64>, values : Vec<Vec<f64>>, k: usize, increasing: bool) -> MonotonicCubicSpline {
 
         assert!(times.len() == values.len() && times.len() >= 2 && values.len() >= 2, "Must have at least 2 control points.");
 
@@ -34,7 +34,13 @@ impl MonotonicCubicSpline {
         for j in 0..k{
             for i in 0..(n-1) {
                 let h = *times.get(i + 1).unwrap() - *times.get(i).unwrap();
-                assert!(h >= 0.0, "Control points must be monotonically increasing.");
+
+                if increasing{
+                    assert!(h >= 0.0, "Control points must be monotonically increasing.");
+                }else{
+                    assert!(h <= 0.0, "Control points must be monotonically decreasing.");
+                }
+
                 let vt = values.get(i + 1).unwrap();
                 let v = *vt.get(j).unwrap();
 

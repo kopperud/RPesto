@@ -21,3 +21,16 @@ pub fn find_newick_string(contents: String) -> String {
 
     res
 }
+
+// normalize
+// meaning sum to 1
+pub fn normalize(x: &mut Vec<f64>) -> (){
+    let mut sum = 0.0;
+    for xi in x.iter(){
+        sum += xi;
+    }
+
+    for xi in x.iter_mut(){
+        (*xi) = (*xi) / sum;
+    }
+}

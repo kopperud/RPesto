@@ -222,6 +222,10 @@ impl Phylogeny {
         model.preorder(&mut self.tree, tol);
 
     }
+
+    //pub fn marginal_probability(&mut self) -> (){
+        //model.marginal_probability(&mut self.tree);
+    //}
 }
 
 
