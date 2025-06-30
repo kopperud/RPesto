@@ -70,7 +70,6 @@ pub struct ForwardProbability{
     pub eta: f64,
     pub k: usize,
     pub extinction_probability: MonotonicCubicSpline,
-    pub branch_probability: MonotonicCubicSpline,
 }
 
 impl ForwardProbability{
@@ -78,11 +77,11 @@ impl ForwardProbability{
         lambda: Vec<f64>,
         mu: Vec<f64>,
         eta: f64,
-        times: Vec<f64>,
-        sol: Vec<Vec<f64>>,
+        extinction_probability: MonotonicCubicSpline,
     ) -> ForwardProbability{
         let k = lambda.len();
 
+        /*
         let mut e = Vec::new();
         for i in 0..times.len(){
             let mut v = Vec::new();
@@ -91,6 +90,7 @@ impl ForwardProbability{
             }
             e.push(v);
         }
+
 
         let mut d = Vec::new();
         for i in 0..times.len(){
@@ -101,14 +101,13 @@ impl ForwardProbability{
             d.push(v);
         }
 
-        println!("asd1");
-
         let extinction_probability = MonotonicCubicSpline::new(times.clone(), e, k);
         println!("asd2");
-        let branch_probability = MonotonicCubicSpline::new(times, d, k);
+        let subtree_probability = MonotonicCubicSpline::new(times, d, k);
         println!("asd3");
+        */
 
-        let res = ForwardProbability{lambda, mu, eta, k, extinction_probability, branch_probability};
+        let res = ForwardProbability{lambda, mu, eta, k, extinction_probability};
         return res;
     }
 }

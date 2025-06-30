@@ -3,6 +3,7 @@ use crate::tree::*;
 use crate::height::*;
 use crate::branch_probability::*;
 use crate::models::*;
+use crate::spline::*;
 
 use rayon::iter::ParallelIterator;
 use rayon::prelude::*;
@@ -77,6 +78,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
         if store{
             node.u_dense = Some(sol.clone());
             node.t_dense = Some(times);
+
         }
 
         log_sf += p[1].ln();
@@ -156,7 +158,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         }
             
         let u0 = u;
-        let dense = false;
+        let dense = store; // if "store", then also solve ODE with dense output
         let n_steps_init = 4;
 
         let t0 = child_time;
@@ -164,21 +166,32 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
         let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
 
-        let alpha: f64 = sol[0][(self.k+1)..(2*self.k)].iter().sum();
+        let n = sol.len()-1;
+
+        let alpha: f64 = sol[n][(self.k+1)..(2*self.k)].iter().sum();
 
         let mut p = Vec::new();
+        //let p = sol.last();
         for i in 0..self.k{
-            p.push(sol[0][i]);
+            p.push(sol[n][i]);
         }
 
         for i in 0..self.k{
-            p.push(sol[0][self.k+i] / alpha);
+            p.push(sol[n][self.k+i] / alpha);
         }
 
         if store{
             //node.u_dense = Some(p.clone());
             node.u_dense = Some(sol.clone());
-            node.t_dense = Some(times);
+            node.t_dense = Some(times.clone());
+
+            let (e, d) = split_e_and_d(sol, self.k);
+
+            let extinction_probability = MonotonicCubicSpline::new(times.clone(), e, self.k);
+            let branch_probability = MonotonicCubicSpline::new(times.clone(), d, self.k);
+
+            node.extinction_probability = Some(extinction_probability);
+            node.subtree_probability = Some(branch_probability);
         }
 
         log_sf += alpha.ln();
@@ -188,4 +201,20 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 }
 
 
+fn split_e_and_d(sol: Vec<Vec<f64>>, k: usize) -> (Vec<Vec<f64>>, Vec<Vec<f64>>){
+    let mut e = Vec::new();
+    let mut d = Vec::new();
+    for sol_i in sol{
+        let mut ei = Vec::new();
+        let mut di = Vec::new();
+        for j in 0..k{
+            ei.push(sol_i[j]);
+            di.push(sol_i[j+k]);
+        }
+        e.push(ei);
+        d.push(di);
+    }
+
+    return (e, d);
+}
 

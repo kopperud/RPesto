@@ -6,6 +6,7 @@
  */
 
 
+#[derive(Debug, Default, Clone)]
 pub struct MonotonicCubicSpline {
     // vector of knots (time points)
     m_times: Vec<f64>,

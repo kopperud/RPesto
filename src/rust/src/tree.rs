@@ -9,6 +9,8 @@ pub struct Branch {
 
 use extendr_api::prelude::*;
 
+use crate::spline::MonotonicCubicSpline;
+
 #[derive(Debug, Default)]
 #[extendr]
 /// @export
@@ -17,6 +19,8 @@ pub struct Node {
     pub length: f64,
     //pub index: i32,
     pub children: Vec<Box<Node>>,
+    pub extinction_probability: Option<MonotonicCubicSpline>,
+    pub subtree_probability: Option<MonotonicCubicSpline>,
     pub u_dense: Option<Vec<Vec<f64>>>,
     pub t_dense: Option<Vec<f64>>,
 }
@@ -28,7 +32,15 @@ impl Node {
         let children: Vec<Box<Node>> = Vec::new(); 
         //let index = 0;
         //Self {label, length, index, children }
-        Self {label, length, children, u_dense: None, t_dense: None}
+        Self {
+            label,
+            length,
+            children,
+            extinction_probability: None,
+            subtree_probability: None,
+            u_dense: None,
+            t_dense: None
+        }
     }
 
     /*

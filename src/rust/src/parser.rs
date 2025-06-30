@@ -19,6 +19,8 @@ pub fn parse_newick(tokens: VecDeque<&str>) -> Box<Node> {
         label: "".to_string(),
         length: 0.0,
         children: Vec::new(),
+        extinction_probability: None,
+        subtree_probability: None,
         u_dense: None,
         t_dense: None,
     });
@@ -57,6 +59,8 @@ fn terminaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>){
         label: species_name.to_string(),
         length: l,
         children: Vec::new(),
+        extinction_probability: None,
+        subtree_probability: None,
         u_dense: None,
         t_dense: None,
     });
@@ -81,6 +85,8 @@ fn internaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>) {
         label: internal_label,
         length: l,
         children: Vec::new(),
+        extinction_probability: None,
+        subtree_probability: None,
         u_dense: None,
         t_dense: None,
     });
