@@ -40,17 +40,6 @@ fn hello_world() -> &'static str {
     "Hello world!"
 }
 
-/// @export
-#[extendr]
-fn print_me_a_tree(s: String) -> (){
-    let tree = parse_tree(s);
-
-    println!("{:?}", tree);
-}
-
-
-
-
 
 fn sequence(from: f64, to: f64, num: usize) -> Vec<f64> {
     let mut v = Vec::new();
@@ -67,7 +56,6 @@ fn sequence(from: f64, to: f64, num: usize) -> Vec<f64> {
     return v;
 }
 
-/// @export
 #[extendr]
 fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api::List{
     let ode = Extinction{mu, lambda};
@@ -95,99 +83,6 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
 
     return res;
 }
-
-/// @export
-#[extendr]
-fn branch_probability(lambda: f64, mu: f64, t: f64, tol : f64) -> extendr_api::List{
-
-    //let height = 60.0;
-    let ode = BranchProbability::new(lambda, mu);
-    let u0 = vec![1.0];
-    let t0 = 0.0;
-
-    let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 10, tol);
-
-    let mut m = Vec::new();
-    for p in probs{
-        m.push(p[0]);
-    }
-
-    let res = list!(t = &times, probs = &m);
-    //microbench::bench(&options, "making an R list", || {list!(t = &times, probs = &m)});
-
-    return res;
-}
-
-/// @export
-#[extendr]
-fn branch_probability2(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, n: usize, t: f64, tol : f64) -> extendr_api::List{
-
-    let height = 100.0;
-    let (lambda, mu) = rate_categories(lambda_hat, mu_hat, sd, n);
-    let rho = 1.0;
-    let k = n*n;
-
-    //return list!(lambda = lambda, mu = mu);
-
-    let ode = BranchProbabilityMultiState::new(lambda.clone(), mu.clone(), eta);
-
-    let mut u0 = vec![1.0 - rho; k];
-    u0.extend(vec![rho; k]);
-
-    let t0 = 0.0;
-
-    let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 4, tol);
-
-    let nrows = probs.len();
-    let ncols = probs[0].len();
-
-    let m = extendr_api::matrix::RMatrix::new_matrix(nrows, ncols, |r,c| probs[r][c]);
-
-    let res = list!(t = &times, probs = m);
-
-    return res;
-}
-
-/*
-/// @export
-#[extendr]
-fn foo(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, height: f64, tol: f64) -> (){
-
-    let (lambda, mu) = rate_categories(lambda_hat, mu_hat, sd, n);
-
-    let ode = ExtinctionMultiState{
-        lambda: lambda.clone(),
-        mu: mu.clone(),
-        eta
-    };
-
-    let k = n*n;
-    let u0 = vec![1.0 - rho; k];
-    let t0 = 0.0;
-    let t1 = height;
-    let dense = true;
-    let n_steps_init = 10;
-
-    let options = Options::default();
-
-    let (times, sol) = ode.solve_dopri45(u0.clone(), t0, t1, dense, n_steps_init, tol);
-    microbench::bench(&options, "solving ODE", || ode.solve_dopri45(u0.clone(), t0, t1, false, 10, tol) );
-    
-    let extinction_probability = MonotonicCubicSpline::new(times, sol, k);
-
-    microbench::bench(&options, "interpolate at t=1.0", || extinction_probability.interpolate(1.0) );
-    microbench::bench(&options, "interpolate at t=60.0", || extinction_probability.interpolate(60.0) );
-
-    let mut du = Vec::new();
-    let mut u = Vec::new();
-    for _ in 0..k{
-        du.push(0.0);
-        u.push(0.0);
-    }
-    microbench::bench(&options, "gradient for extinction SSE", || ode.gradient(&mut du, &u, &0.0) );
-}
-*/
-
 
 #[derive(Debug)]
 #[extendr]
@@ -238,9 +133,6 @@ impl Phylogeny {
         return newick;
     }
 
-    //pub fn marginal_probabilities(&mut self) -> (){
-        //model.marginal_probability(&mut self.tree);
-    //}
 }
 
 
@@ -250,14 +142,10 @@ impl Phylogeny {
 extendr_module! {
     mod RPesto;
     fn hello_world;
-    fn print_me_a_tree;
     fn extinction_probability; 
-    fn branch_probability; 
-    fn branch_probability2;
     impl Phylogeny;
 }
 
-//extendr_mo!(
 
 
 
