@@ -45,26 +45,13 @@ impl Preorder<BranchProbabilityMultiState> for ShiftBD{
     }
 
     fn preorder_po(&self, node: &mut Box<Node>, time: f64, parent_marginal_probability: Vec<f64>, tol: f64) -> (){
-        // should do some checks here if there is None in t and u
-        println!("asd5");
-
         let k = self.k;
 
         let x = ForwardProbability::new(self.lambda.clone(), self.mu.clone(), self.eta, node.extinction_probability.clone().unwrap());
 
-        println!("asd6");
-        /*
-        let t0 = time;
-        let t1 = time - node.length;
-
-        let u_dense = node.u_dense.clone().unwrap().clone();
-        let last_index = u_dense.len();
-        let d_old = &u_dense[last_index-1];
-        */
         let t0 = time;
         let t1 = time - node.length;
         let n_steps_init = 5;
-        println!("asd7");
 
         let d_old = node.subtree_probability
             .as_ref()
@@ -77,34 +64,20 @@ impl Preorder<BranchProbabilityMultiState> for ShiftBD{
             marginal_probability.push(p);
         }
         normalize(&mut marginal_probability);
-        println!("asd8");
 
         let u0 = marginal_probability;
 
         let (times, sol) = x.solve_dopri45(u0, t0, t1, true, n_steps_init, tol);
-        println!("asd9");
-        println!("times : {:?}", times);
-        println!("sol : {:?}", sol);
+
 
         let sol_last = sol.last().cloned().unwrap();
         let forward_probability = MonotonicCubicSpline::new(times.clone(), sol, self.k, false);
 
-        println!("asd10");
         node.forward_probability = Some(forward_probability);
-        println!("asd11");
-   
-        println!("t0 = {}", t0);
-        println!("t1 = {}", t1);
-
-        println!("times = {:?}", times);
-        println!("F = {:?}", sol_last.clone());
-
         // marginal probability at t1, youngest on branch
 
         let d1 = node.subtree_probability.as_ref().unwrap().interpolate(t1);
 
-
-        println!("asd1");
 
         let mut marginal_probability_young = Vec::new();
         for i in 0..self.k{
@@ -112,17 +85,12 @@ impl Preorder<BranchProbabilityMultiState> for ShiftBD{
             marginal_probability_young.push(p);
         }
 
-        println!("asd2");
         // normalize such that f sums to 1
         normalize(&mut marginal_probability_young);
-        println!("asd3");
 
         for child_node in node.children.iter_mut(){
-            println!("asd4");
             self.preorder_po(child_node, time - node.length, marginal_probability_young.clone(), tol);
         }
-
-        
     }
 }
 
