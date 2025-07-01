@@ -14,6 +14,7 @@ use crate::categories::*;
 use crate::marginal_probability::*;
 use crate::tree::Node;
 use crate::branchrates::*;
+use crate::writenewick::*;
 
 pub mod spline;
 pub mod marginal_probability;
@@ -30,6 +31,7 @@ pub mod odesolver;
 pub mod branchrates;
 pub mod height;
 pub mod models;
+pub mod writenewick;
 
 /// Return string `"Hello world!"` to R.
 /// @export
@@ -226,9 +228,14 @@ impl Phylogeny {
         model.preorder(&mut self.tree, tol);
     }
 
-     pub fn branch_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize) -> (){
+    pub fn branch_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize) -> (){
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
         model.net_diversification(&mut self.tree );
+    }
+
+    pub fn write_newick(&mut self) -> String{
+        let newick = self.tree.writenewick();
+        return newick;
     }
 
     //pub fn marginal_probabilities(&mut self) -> (){
