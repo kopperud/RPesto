@@ -47,7 +47,7 @@ impl BranchRates for ShiftBD{
         }
 
         let net_div = r / (n as f64);
-        println!("netdiv = {}", net_div);
+        //println!("netdiv = {}", net_div);
 
         //assign to node
         node.r = Some(net_div);
