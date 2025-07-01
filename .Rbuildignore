@@ -3,4 +3,5 @@
 ^src/rust/target$
 ^src/Makevars$
 ^src/Makevars\.win$
+data/primates.png
 ^LICENSE\.md$
