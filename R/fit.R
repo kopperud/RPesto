@@ -53,7 +53,9 @@ fit_bds <- function(phy, sampling_fraction, num_classes = 6, sd = 0.587, tol = 1
     s <- phylogeny$write_newick()
 
     ## parse newick string
-    tree <- read.beast.newick(s)
+    #tree <- read.beast.newick(s)
+    txt <- textConnection(s)
+    tree <- treeio::read.beast.newick(txt)
 
     return(tree)
 }
