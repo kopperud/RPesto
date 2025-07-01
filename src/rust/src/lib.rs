@@ -13,6 +13,7 @@ use crate::models::*;
 use crate::categories::*;
 use crate::marginal_probability::*;
 use crate::tree::Node;
+use crate::branchrates::*;
 
 pub mod spline;
 pub mod marginal_probability;
@@ -26,6 +27,7 @@ pub mod preorder;
 pub mod branch_probability;
 pub mod utils;
 pub mod odesolver;
+pub mod branchrates;
 pub mod height;
 pub mod models;
 
@@ -222,7 +224,11 @@ impl Phylogeny {
     pub fn bds_preorder(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> (){
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
         model.preorder(&mut self.tree, tol);
+    }
 
+     pub fn branch_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize) -> (){
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
+        model.net_diversification(&mut self.tree );
     }
 
     //pub fn marginal_probabilities(&mut self) -> (){

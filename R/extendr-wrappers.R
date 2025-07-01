@@ -38,6 +38,8 @@ Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol, s
 
 Phylogeny$bds_preorder <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__bds_preorder, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
 
+Phylogeny$branch_rates <- function(lambda_hat, mu_hat, eta, rho, sd, n) .Call(wrap__Phylogeny__branch_rates, self, lambda_hat, mu_hat, eta, rho, sd, n)
+
 #' @export
 `$.Phylogeny` <- function (self, name) { func <- Phylogeny[[name]]; environment(func) <- environment(); func }
 
