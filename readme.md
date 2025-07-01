@@ -4,9 +4,9 @@
 
 ## Installation
 
-The backend of `RPesto` is implemented in `rust`, therefore you need to have `rust` and `cargo` installed. Please follow the instructions on [https://rustup.rs/](https://rustup.rs/).
+The probability calculations in `RPesto` are implemented in the `rust` programming language. Therefore you need to have `rust` and `cargo` installed. Please follow the instructions on [https://rustup.rs/](https://rustup.rs/).
 
-Next, we will use the R-package `remotes` to install necessary R package dependencies
+Next, we will use the R-package `remotes` to install the necessary R package dependencies
 
 ```R
 install.packages("remotes")
