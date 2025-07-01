@@ -5,19 +5,19 @@ use crate::tree::*;
 
 // the marginal probability trait 
 pub trait BranchRates{
-    fn net_diversification( &self, node: &Box<Node> ) -> ();
-    fn net_diversification_po( &self, node: &Box<Node>, time: f64) -> ();
+    fn net_diversification( &self, node: &mut Box<Node> ) -> ();
+    fn net_diversification_po( &self, node: &mut Box<Node>, time: f64) -> ();
 }
 
 impl BranchRates for ShiftBD{
-    fn net_diversification( &self, tree: &Box<Node>) -> (){
+    fn net_diversification( &self, tree: &mut Box<Node>) -> (){
         let time = treeheight(tree);
 
         self.net_diversification_po( tree, time );
     }
 
 
-    fn net_diversification_po( &self, node: &Box<Node>, time: f64) -> () {
+    fn net_diversification_po( &self, node: &mut Box<Node>, time: f64) -> () {
 
         let t0 = time;
         let t1 = t0 - node.length;
@@ -49,7 +49,10 @@ impl BranchRates for ShiftBD{
         let net_div = r / (n as f64);
         println!("netdiv = {}", net_div);
 
-        for child_node in node.children.iter(){
+        //assign to node
+        node.r = Some(net_div);
+
+        for child_node in node.children.iter_mut(){
             self.net_diversification_po(child_node, t1);
         }
 
