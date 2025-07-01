@@ -22,6 +22,7 @@ pub fn parse_newick(tokens: VecDeque<&str>) -> Box<Node> {
         extinction_probability: None,
         subtree_probability: None,
         forward_probability: None,
+        r: None,
     });
     
     // strip semicolon
@@ -61,6 +62,7 @@ fn terminaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>){
         extinction_probability: None,
         subtree_probability: None,
         forward_probability: None,
+        r: None,
     });
 
     parent_node.children.push(node);
@@ -86,6 +88,7 @@ fn internaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>) {
         extinction_probability: None,
         subtree_probability: None,
         forward_probability: None,
+        r: None,
     });
 
 

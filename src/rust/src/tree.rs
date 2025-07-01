@@ -22,6 +22,7 @@ pub struct Node {
     pub extinction_probability: Option<MonotonicCubicSpline>,
     pub subtree_probability: Option<MonotonicCubicSpline>,
     pub forward_probability: Option<MonotonicCubicSpline>,
+    pub r: Option<f64>,
 }
 
 
@@ -38,6 +39,7 @@ impl Node {
             extinction_probability: None,
             subtree_probability: None,
             forward_probability: None,
+            r: None,
         }
     }
 
