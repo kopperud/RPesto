@@ -81,4 +81,4 @@ library(ggtree)
 
 ggtree(tree, aes(color = netdiv))
 ```
-![primatestree](datta/primates.png)
+![primatestree](data/primates.png)
