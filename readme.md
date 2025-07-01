@@ -25,7 +25,7 @@ install_github("kopperud/RPesto")
 
 ## Fitting the model
 
-Now you can load `RPesto` and fit the model to your tree, and we need to specify what the probability of sampling the taxa are. This is usually set by calculating the number of the tips that are sampled in the tree, divided by the number of accepted species for the group. 
+Now you can load `RPesto` and fit the model to your tree, and we need to specify what the probability of sampling the taxa are. This is usually set by calculating the number of the tips that are sampled in the tree, and dividing by the number of accepted species for the group. 
 
 ```R
 library(RPesto)
@@ -86,4 +86,4 @@ ggtree(tree, aes(color = netdiv))
 ## References
 
 * Kopperud, B. T., & Höhna, S. (2025). Phylogenetic Estimation of branch-specific Shifts in the Tempo of Origination. Systematic Biology, syaf041.
-* Vos, R. and A. Mooers. 2006. A new dated supertree of the primates. in Inferring large phylogenies: the big tree problem (R Vos, Phd thesis). Simon Fraser University, Burnaby, British Columbia.
+* Vos, R. and A. Mooers. 2006. A new dated supertree of the primates. *in* Inferring large phylogenies: the big tree problem (R Vos, Phd thesis). Simon Fraser University, Burnaby, British Columbia.
