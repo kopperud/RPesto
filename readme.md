@@ -1,6 +1,6 @@
 ## RPesto
 
-`RPesto` is an alternative implementation of the `Pesto` software in R. It can estimate branch-specific diversification rates for large trees.
+`RPesto` is an alternative implementation of the `Pesto` software in R. It can estimate branch-specific diversification rates for large trees. The `julia` implementation of `Pesto` is described in Kopperud & Höhna (2025).
 
 ## Installation
 
@@ -82,3 +82,8 @@ library(ggtree)
 ggtree(tree, aes(color = netdiv))
 ```
 ![primatestree](data/primates.png)
+
+## References
+
+* Kopperud, B. T., & Höhna, S. (2025). Phylogenetic Estimation of branch-specific Shifts in the Tempo of Origination. Systematic Biology, syaf041.
+* Vos, R. and A. Mooers. 2006. A new dated supertree of the primates. in Inferring large phylogenies: the big tree problem (R Vos, Phd thesis). Simon Fraser University, Burnaby, British Columbia.
