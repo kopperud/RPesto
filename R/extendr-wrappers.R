@@ -40,6 +40,8 @@ Phylogeny$bds_preorder <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Ca
 
 Phylogeny$branch_rates <- function(lambda_hat, mu_hat, eta, rho, sd, n) .Call(wrap__Phylogeny__branch_rates, self, lambda_hat, mu_hat, eta, rho, sd, n)
 
+Phylogeny$write_newick <- function() .Call(wrap__Phylogeny__write_newick, self)
+
 #' @export
 `$.Phylogeny` <- function (self, name) { func <- Phylogeny[[name]]; environment(func) <- environment(); func }
 

@@ -48,13 +48,17 @@ fit_bds <- function(phy, sampling_fraction, num_classes = 6, sd = 0.587, tol = 1
                 "eta" = bds_opt$par[1]
                 )
     }else{
-        lambdaml <- 0.18
-        muml <- 0.18
+        lambda_hat <- 0.18
+        mu_hat <- 0.18
         eta <- 0.0033
-        phylogeny$bds_likelihood(lambdaml, muml, eta, sampling_fraction, sd, num_classes, tol, TRUE)
+        phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol, TRUE)
     }
 
-    phylogeny$preorder();
+    phylogeny$bds_preorder(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol);
+    phylogeny$branch_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes);
+    s <- phylogeny$write_newick()
 
-    return(res)
+    tree <- read.beast.newick(s)
+
+    return(tree)
 }
