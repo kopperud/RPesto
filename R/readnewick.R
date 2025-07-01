@@ -349,7 +349,6 @@ add_pseudo_nodelabel <- function(phylo, translated=FALSE) {
 ##'
 ##' @title rootnode
 ##' @rdname rootnode
-##' @inheritParams child
 ##' @return root node data
 ##' @export
 ##' @author Guangchuang Yu
