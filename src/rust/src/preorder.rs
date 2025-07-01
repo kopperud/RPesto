@@ -23,10 +23,14 @@ impl Preorder<BranchProbabilityMultiState> for ShiftBD{
         let k = self.lambda.len();
         
         let root_prior= vec![1.0 / (k as f64); k];
-        let u_dense = tree.u_dense.clone().unwrap().clone();
 
-        let last_index = u_dense.len();
-        let root_d = &u_dense[last_index-1];
+        //let last_index = u_dense.len();
+        //let root_d = &u_dense[last_index-1];
+        let root_d = tree
+            .subtree_probability
+            .as_ref()
+            .unwrap()
+            .interpolate(time);
 
         let mut marginal_probability= Vec::new();
         for i in 0..k{

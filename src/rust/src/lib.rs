@@ -225,9 +225,9 @@ impl Phylogeny {
 
     }
 
-    pub fn marginal_probability(&mut self) -> (){
-        model.marginal_probability(&mut self.tree);
-    }
+    //pub fn marginal_probabilities(&mut self) -> (){
+        //model.marginal_probability(&mut self.tree);
+    //}
 }
 
 

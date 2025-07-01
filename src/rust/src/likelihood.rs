@@ -75,12 +75,6 @@ impl Likelihood<BranchProbability> for ConstantBD{
     
         let mut p = sol[0].clone();
 
-        if store{
-            node.u_dense = Some(sol.clone());
-            node.t_dense = Some(times);
-
-        }
-
         log_sf += p[1].ln();
         p[1] = 1.0;
             
@@ -181,10 +175,6 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         }
 
         if store{
-            //node.u_dense = Some(p.clone());
-            node.u_dense = Some(sol.clone());
-            node.t_dense = Some(times.clone());
-
             let (e, d) = split_e_and_d(sol, self.k);
 
             let extinction_probability = MonotonicCubicSpline::new(times.clone(), e, self.k, true);
