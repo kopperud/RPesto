@@ -1,5 +1,52 @@
 use itertools::izip;
 
+pub enum EquationType{
+    Probability,
+    LogProbability,
+    ProbabilityDensity,
+    Any,
+}
+
+fn is_valid(u: &Vec<f64>, delta: &Vec<f64>, equation: EquationType) -> bool{
+    let x = match equation{
+        EquationType::Probability => {
+            let mut res = true;
+            for (ui, delta_i) in u.iter().zip(delta){
+                let ui_next = ui + delta_i;
+                if (ui_next < 0.0) || (ui_next > 1.0){
+                    res = false;
+                    break
+                }
+            }
+            return res;
+        },
+        EquationType::LogProbability => {
+            let mut res = true;
+            for (ui, delta_i) in u.iter().zip(delta){
+                let ui_next = ui + delta_i;
+                if ui_next > 0.0{
+                    res = false;
+                    break
+                }
+            }
+            return res;
+        },
+        EquationType::ProbabilityDensity => {
+            let mut res = true;
+            for (ui, delta_i) in u.iter().zip(delta){
+                let ui_next = ui + delta_i;
+                if ui_next < 0.0{
+                    res = false;
+                    break
+                }
+            }
+            return res;
+        },
+        EquationType::Any => true,
+    };
+    return x;
+}
+
 pub trait Gradient{
     fn gradient(&self, du: &mut Vec<f64>, u: & Vec<f64>, t: &f64);
 }
@@ -171,35 +218,15 @@ where
             }
             error_estimate = error_estimate / (n as f64);
 
-            //println!("error_estimate = {}", error_estimate);
-
-            // accept solution
+            // whether or not to accept solution
             let mut accept = false;
+            
+            let equation = EquationType::ProbabilityDensity;
+            let v = is_valid(&u, &delta_five, equation);
 
-            let mut any_negatives = false;
-
-            for i in 0..n{
-                let current_u = u[i] + delta_five[i]; 
-                if current_u < 0.0{
-                    any_negatives = true;
-                    //break;
-                }
-            }
-            //println!("u = {:?}", u);
-            //println!("delta_five = {:?}", delta_five);
-
-            /*
-            if any_negatives{
-                println!("found negative value at delta_t={}$", delta_t);
-            }
-            */
-
-            if (error_estimate < error_tolerance) & (!any_negatives) {
+            if (error_estimate < error_tolerance) & v {
                 accept = true;
             }
-
-            //println!("any negatives = {}", any_negatives);
-            //println!("accept = {}", accept);
 
             if accept{
                 if dense{
