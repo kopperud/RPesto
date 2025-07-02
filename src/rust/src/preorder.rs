@@ -1,4 +1,4 @@
-use crate::odesolver::Solve;
+use crate::odesolver::{EquationType, Solve};
 use crate::tree::*;
 use crate::height::*;
 use crate::branch_probability::*;
@@ -71,7 +71,7 @@ impl Preorder<BranchProbabilityMultiState> for ShiftBD{
 
         let u0 = marginal_probability;
 
-        let (times, sol) = x.solve_dopri45(u0, t0, t1, true, n_steps_init, tol);
+        let (times, sol) = x.solve_dopri45(u0, t0, t1, true, n_steps_init, tol, EquationType::ProbabilityDensity);
 
 
         let sol_last = sol.last().cloned().unwrap();

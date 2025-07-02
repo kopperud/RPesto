@@ -1,4 +1,4 @@
-use crate::odesolver::Solve;
+use crate::odesolver::{EquationType, Solve};
 use crate::tree::*;
 use crate::height::*;
 use crate::branch_probability::*;
@@ -71,7 +71,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
         let t0 = child_time;
         let t1 = time;
 
-        let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
+        let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, EquationType::ProbabilityDensity);
     
         let mut p = sol[0].clone();
 
@@ -158,7 +158,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         let t0 = child_time;
         let t1 = time;
 
-        let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol);
+        let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, EquationType::ProbabilityDensity);
 
         let n = sol.len()-1;
 

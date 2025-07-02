@@ -7,7 +7,9 @@ pub enum EquationType{
     Any,
 }
 
-fn is_valid(u: &Vec<f64>, delta: &Vec<f64>, equation: EquationType) -> bool{
+fn is_valid(u: &Vec<f64>, delta: &Vec<f64>, equation: &EquationType) -> bool{
+    //println!("is valid, u = {:?}", u);
+    //println!("is valid, delta = {:?}", delta);
     let x = match equation{
         EquationType::Probability => {
             let mut res = true;
@@ -55,7 +57,7 @@ pub trait Gradient{
 // Two solvers
 pub trait Solve{
     fn solve_rk4(    &self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps: i32) -> (Vec<f64>, Vec<Vec<f64>>);
-    fn solve_dopri45(      &self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps_init: i32, error_tolerance: f64) -> (Vec<f64>, Vec<Vec<f64>>);
+    fn solve_dopri45(      &self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps_init: i32, error_tolerance: f64, equation: EquationType) -> (Vec<f64>, Vec<Vec<f64>>);
 }
 
 // This is a generic implementation, it implements
@@ -129,7 +131,7 @@ where
     // the Dormand-Prince 45 algorithm with error estimation and adaptive step size
     // Dormand, J.R.; Prince, P.J. (1980). "A family of embedded Runge-Kutta formulae". 
     // Journal of Computational and Applied Mathematics. 6 (1): 19–26. 
-    fn solve_dopri45(&self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps_init: i32, error_tolerance: f64) -> (Vec<f64>, Vec<Vec<f64>>) {
+    fn solve_dopri45(&self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps_init: i32, error_tolerance: f64, equation: EquationType) -> (Vec<f64>, Vec<Vec<f64>>) {
         let n = u0.len();
         let mut k1 = vec![0.0; n];
         let mut k2 = vec![0.0; n];
@@ -221,8 +223,7 @@ where
             // whether or not to accept solution
             let mut accept = false;
             
-            let equation = EquationType::ProbabilityDensity;
-            let v = is_valid(&u, &delta_five, equation);
+            let v = is_valid(&u, &delta_five, &equation);
 
             if (error_estimate < error_tolerance) & v {
                 accept = true;

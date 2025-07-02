@@ -16,6 +16,7 @@ use crate::tree::Node;
 use crate::branchrates::*;
 use crate::writenewick::*;
 use crate::number_of_shifts::*;
+use crate::bayes_factor::*;
 
 pub mod spline;
 pub mod marginal_probability;
@@ -34,6 +35,7 @@ pub mod height;
 pub mod models;
 pub mod writenewick;
 pub mod number_of_shifts;
+pub mod bayes_factor;
 
 /// Return string `"Hello world!"` to R.
 /// @export
@@ -67,7 +69,8 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
 
     //let options = Options::default();
     //microbench::bench(&options, "solving ODE", || ode.solve_dopri45(u0.clone(), t0, t, false, 10, tol) );
-    let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 10, tol);
+    let equation = EquationType::Probability;
+    let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 10, tol, equation);
     //let n_rows = probs.len();
     //let m = RMatrix::new_matrix(n_rows, 1, |r, c| probs[r][c]);
     
@@ -133,6 +136,11 @@ impl Phylogeny {
     pub fn number_of_shifts(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> (){
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
         model.number_of_shifts(&mut self.tree, tol);
+    }
+
+    pub fn bayes_factors(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> (){
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
+        model.bayes_factors(&mut self.tree, tol);
     }
 
     pub fn write_newick(&mut self) -> String{

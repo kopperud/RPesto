@@ -24,6 +24,7 @@ pub struct Node {
     pub forward_probability: Option<MonotonicCubicSpline>,
     pub r: Option<f64>,
     pub number_of_shifts: Option<f64>,
+    pub bayes_factor: Option<f64>,
 }
 
 
@@ -42,6 +43,7 @@ impl Node {
             forward_probability: None,
             r: None,
             number_of_shifts: None,
+            bayes_factor: None,
         }
     }
 

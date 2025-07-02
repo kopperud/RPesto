@@ -32,6 +32,8 @@ Phylogeny$branch_rates <- function(lambda_hat, mu_hat, eta, rho, sd, n) .Call(wr
 
 Phylogeny$number_of_shifts <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__number_of_shifts, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
 
+Phylogeny$bayes_factors <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__bayes_factors, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
+
 Phylogeny$write_newick <- function() .Call(wrap__Phylogeny__write_newick, self)
 
 #' @export

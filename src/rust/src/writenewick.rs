@@ -36,7 +36,7 @@ impl WriteNewick for Node{
         }
 
         //s.push('[');
-        let x = format!("[&netdiv={},nshifts={}]", self.r.unwrap(), self.number_of_shifts.unwrap());
+        let x = format!("[&netdiv={},nshifts={},shift_bf={}]", self.r.unwrap(), self.number_of_shifts.unwrap(), self.bayes_factor.unwrap());
         s.push_str(x.as_str());
         //s.push(']');
         s.push(':');

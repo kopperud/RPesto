@@ -4,7 +4,16 @@
 \alias{fit_bds}
 \title{fits the bds model}
 \usage{
-fit_bds(phy, sampling_fraction, num_classes = 6, sd = 0.587, tol = 1e-06)
+fit_bds(
+  phy,
+  sampling_fraction,
+  lambda_hat,
+  mu_hat,
+  eta,
+  num_classes = 6,
+  sd = 0.587,
+  tol = 1e-06
+)
 }
 \arguments{
 \item{phy}{an object of type phylo}
