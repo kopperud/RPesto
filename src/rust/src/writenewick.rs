@@ -22,7 +22,6 @@ impl WriteNewick for Node{
         let is_tip = self.children.is_empty();        
 
         if is_tip{
-            //s.push_str("asd");
             s.push_str(self.label.as_str());
         }else{
             s.push('(');
@@ -37,7 +36,7 @@ impl WriteNewick for Node{
         }
 
         //s.push('[');
-        let x = format!("[&netdiv={}]", self.r.unwrap());
+        let x = format!("[&netdiv={},nshifts={}]", self.r.unwrap(), self.number_of_shifts.unwrap());
         s.push_str(x.as_str());
         //s.push(']');
         s.push(':');

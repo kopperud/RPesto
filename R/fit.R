@@ -49,6 +49,9 @@ fit_bds <- function(phy, sampling_fraction, num_classes = 6, sd = 0.587, tol = 1
     ## calculate netdiv per branch
     phylogeny$branch_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes);
 
+    ## calculate no. shifts per branch
+    phylogeny$number_of_shifts(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol);
+
     ## write newick string
     s <- phylogeny$write_newick()
 

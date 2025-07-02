@@ -15,6 +15,7 @@ use crate::marginal_probability::*;
 use crate::tree::Node;
 use crate::branchrates::*;
 use crate::writenewick::*;
+use crate::number_of_shifts::*;
 
 pub mod spline;
 pub mod marginal_probability;
@@ -32,6 +33,7 @@ pub mod branchrates;
 pub mod height;
 pub mod models;
 pub mod writenewick;
+pub mod number_of_shifts;
 
 /// Return string `"Hello world!"` to R.
 /// @export
@@ -128,6 +130,11 @@ impl Phylogeny {
         model.net_diversification(&mut self.tree );
     }
 
+    pub fn number_of_shifts(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> (){
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
+        model.number_of_shifts(&mut self.tree, tol);
+    }
+
     pub fn write_newick(&mut self) -> String{
         let newick = self.tree.writenewick();
         return newick;
@@ -145,6 +152,7 @@ extendr_module! {
     fn extinction_probability; 
     impl Phylogeny;
 }
+
 
 
 

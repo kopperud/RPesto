@@ -23,6 +23,7 @@ pub struct Node {
     pub subtree_probability: Option<MonotonicCubicSpline>,
     pub forward_probability: Option<MonotonicCubicSpline>,
     pub r: Option<f64>,
+    pub number_of_shifts: Option<f64>,
 }
 
 
@@ -40,6 +41,7 @@ impl Node {
             subtree_probability: None,
             forward_probability: None,
             r: None,
+            number_of_shifts: None,
         }
     }
 

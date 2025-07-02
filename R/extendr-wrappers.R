@@ -14,17 +14,7 @@ NULL
 #' @export
 hello_world <- function() .Call(wrap__hello_world)
 
-#' @export
-print_me_a_tree <- function(s) .Call(wrap__print_me_a_tree, s)
-
-#' @export
 extinction_probability <- function(lambda, mu, t, tol) .Call(wrap__extinction_probability, lambda, mu, t, tol)
-
-#' @export
-branch_probability <- function(lambda, mu, t, tol) .Call(wrap__branch_probability, lambda, mu, t, tol)
-
-#' @export
-branch_probability2 <- function(lambda_hat, mu_hat, eta, sd, n, t, tol) .Call(wrap__branch_probability2, lambda_hat, mu_hat, eta, sd, n, t, tol)
 
 Phylogeny <- new.env(parent = emptyenv())
 
@@ -39,6 +29,8 @@ Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol, s
 Phylogeny$bds_preorder <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__bds_preorder, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
 
 Phylogeny$branch_rates <- function(lambda_hat, mu_hat, eta, rho, sd, n) .Call(wrap__Phylogeny__branch_rates, self, lambda_hat, mu_hat, eta, rho, sd, n)
+
+Phylogeny$number_of_shifts <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__number_of_shifts, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
 
 Phylogeny$write_newick <- function() .Call(wrap__Phylogeny__write_newick, self)
 
