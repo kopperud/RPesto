@@ -20,6 +20,12 @@ fit_bds(
 
 \item{sampling_fraction}{the probability that each species was sampled in the tree}
 
+\item{lambda_hat}{the overall scale of the log-normal base distribution for the speciation rates. If not specified, the function will estimate it using ML}
+
+\item{mu_hat}{the overall scale of the log-normal base distribution for the extinction rates. If not specified, the function will estimate it using ML}
+
+\item{eta}{the shift rate parameter. If not specified, the function will estimate it using ML}
+
 \item{num_classes}{the number of rate class discretizations (n), such that rate categories is k = n^2}
 
 \item{sd}{the spread parameter for the log-normal base distribution}

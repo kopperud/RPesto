@@ -2,6 +2,9 @@
 #'
 #' @param phy an object of type phylo
 #' @param sampling_fraction the probability that each species was sampled in the tree
+#' @param lambda_hat the overall scale of the log-normal base distribution for the speciation rates. If not specified, the function will estimate it using ML
+#' @param mu_hat the overall scale of the log-normal base distribution for the extinction rates. If not specified, the function will estimate it using ML
+#' @param eta the shift rate parameter. If not specified, the function will estimate it using ML
 #' @param num_classes the number of rate class discretizations (n), such that rate categories is k = n^2
 #' @param sd the spread parameter for the log-normal base distribution
 #' @param tol the local error threshold in the numerical ODE solver (per delta_t time step)
