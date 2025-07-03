@@ -36,11 +36,7 @@ impl Preorder<BranchProbabilityMultiState> for ShiftBD{
         }
 
         // normalize
-        let s = marginal_probability.iter().fold(0.0, |acc, x| acc + x);
-        for i in 0..k{
-            marginal_probability[i] = marginal_probability[i] / s;
-        }
-
+        normalize(&mut marginal_probability);
 
         self.preorder_po(tree, time, marginal_probability, tol);
     }
@@ -52,8 +48,8 @@ impl Preorder<BranchProbabilityMultiState> for ShiftBD{
 
         let t0 = time;
         let t1 = time - node.length;
-        let n_steps_init = 5;
 
+        let n_steps_init = 5;
         let d_old = node.subtree_probability
             .as_ref()
             .unwrap()
@@ -78,7 +74,6 @@ impl Preorder<BranchProbabilityMultiState> for ShiftBD{
         // marginal probability at t1, youngest on branch
 
         let d1 = node.subtree_probability.as_ref().unwrap().interpolate(t1);
-
 
         let mut marginal_probability_young = Vec::new();
         for i in 0..self.k{
