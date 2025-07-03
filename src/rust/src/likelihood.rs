@@ -71,7 +71,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
         let t0 = child_time;
         let t1 = time;
 
-        let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, EquationType::ProbabilityDensity);
+        let (_times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, EquationType::ProbabilityDensity);
     
         let mut p = sol[0].clone();
 
