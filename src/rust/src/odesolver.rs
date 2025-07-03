@@ -273,16 +273,11 @@ where
 fn go(t: &f64, t1: &f64, delta_t: &f64) -> bool{
     let mut res = false;
 
-    //println!("delta_t before: {}", delta_t);
-
-    //if delta_t == &0.0{
     if delta_t > &0.0{
         res = t < t1;
     }else if delta_t < &0.0{
         res = t > t1;
     }
-
-    //println!("delta_t after: {}", delta_t);
 
     return res;
 }
