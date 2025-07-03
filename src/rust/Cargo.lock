@@ -8,7 +8,6 @@ version = "0.1.0"
 dependencies = [
  "extendr-api",
  "itertools",
- "microbench",
  "once_cell",
  "rayon",
  "regex",
@@ -167,12 +166,6 @@ name = "memchr"
 version = "2.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
-
-[[package]]
-name = "microbench"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4c44e40aee4e6fd2f4257bb91e5948ce79285aeb949129448889cf2fbf6da0b"
 
 [[package]]
 name = "nalgebra"

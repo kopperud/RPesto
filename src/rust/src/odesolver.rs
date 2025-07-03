@@ -1,5 +1,3 @@
-use itertools::izip;
-
 pub enum EquationType{
     Probability,
     LogProbability,
@@ -8,8 +6,6 @@ pub enum EquationType{
 }
 
 fn is_valid(u: &Vec<f64>, delta: &Vec<f64>, equation: &EquationType) -> bool{
-    //println!("is valid, u = {:?}", u);
-    //println!("is valid, delta = {:?}", delta);
     let x = match equation{
         EquationType::Probability => {
             let mut res = true;

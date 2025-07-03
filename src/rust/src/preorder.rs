@@ -6,9 +6,6 @@ use crate::models::*;
 use crate::spline::*;
 use crate::utils::*;
 
-use rayon::iter::ParallelIterator;
-use rayon::prelude::*;
-
 // the likelihood trait 
 pub trait Preorder<T>{
     fn preorder( &self, tree: &mut Box<Node>, tol: f64) -> ();

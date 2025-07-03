@@ -1,5 +1,4 @@
 use extendr_api::prelude::*;
-use microbench::{self, Options};
 
 use crate::parser::*;
 use crate::extinction::*;
@@ -49,14 +48,8 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
     let u0 = vec![0.0];
     let t0 = 0.0;
 
-    //let options = Options::default();
-    //microbench::bench(&options, "solving ODE", || ode.solve_dopri45(u0.clone(), t0, t, false, 10, tol) );
     let equation = EquationType::Probability;
     let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 10, tol, equation);
-    //let n_rows = probs.len();
-    //let m = RMatrix::new_matrix(n_rows, 1, |r, c| probs[r][c]);
-    
-    //let spline = MonotonicCubicSpline::new(times, probs, 1);
 
 
     let mut m = Vec::new();
@@ -66,7 +59,6 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
     }
 
     let res = list!(t = &times, probs = &m);
-    //microbench::bench(&options, "making an R list", || {list!(t = &times, probs = &m)});
 
     return res;
 }
@@ -100,8 +92,6 @@ impl Phylogeny {
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
         let lnl = model.likelihood(&mut self.tree, tol, store);
 
-        //let options = Options::default();
-        //microbench::bench(&options, "calculating likelihood", || model.likelihood(&tree, tol) );
         return lnl;
     }
 

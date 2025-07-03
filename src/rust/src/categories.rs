@@ -1,4 +1,3 @@
-use extendr_api::prelude::*;
 use statrs::distribution::{LogNormal,ContinuousCDF};
 
 pub fn lognormal_quantile(x: f64, location: f64, sigma: f64) -> f64{
