@@ -1,8 +1,4 @@
-use itertools::all;
-
 use crate::odesolver::*;
-use crate::spline::*;
-use crate::extinction::*;
 use crate::spline::*;
 
 pub struct BranchProbability{
@@ -20,7 +16,6 @@ impl BranchProbability {
 
 impl Gradient for BranchProbability{
     fn gradient(&self, du: &mut Vec<f64>, u: & Vec<f64>, _t: &f64, ) -> (){
-        //let et = self.extinction_probability.interpolate(*t)[0];
         
         du[0] = self.mu - (self.mu + self.lambda) * u[0]  + self.lambda * u[0] * u[0];
         du[1] = - (self.mu + self.lambda) * u[1] + 2.0 * self.lambda * u[0] * u[1];
@@ -81,29 +76,6 @@ impl ForwardProbability{
     ) -> ForwardProbability{
         let k = lambda.len();
 
-        /*
-        let mut e = Vec::new();
-        for i in 0..times.len(){
-            let mut v = Vec::new();
-            for j in 0..k{
-                v.push(sol[i][j]);
-            }
-            e.push(v);
-        }
-
-
-        let mut d = Vec::new();
-        for i in 0..times.len(){
-            let mut v = Vec::new();
-            for j in 0..k{
-                v.push(sol[i][k+j]);
-            }
-            d.push(v);
-        }
-
-        println!("asd3");
-        */
-
         let res = ForwardProbability{lambda, mu, eta, k, extinction_probability};
         return res;
     }
@@ -119,14 +91,7 @@ impl Gradient for ForwardProbability{
 
         for i in 0..self.k{
             dF[i] = (self.mu[i] + self.lambda[i] + self.eta) * F[i] - 2.0 * self.lambda[i] * F[i] * Et[i] - r * (sum_F - F[i]);
-            //dF[i] = - (self.mu[i] + self.lambda[i] + self.eta) * F[i] + 2.0 * self.lambda[i] * F[i] * Et[i] + r * (sum_F - F[i]);
         }
     }
 }
-
-// todo: 
-// calculate N(t)
-// calculate log Bayes factor
-
-
 
