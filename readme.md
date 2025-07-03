@@ -34,7 +34,9 @@ data("primates")
 
 sampling_fraction <- 0.635
 
-tree <- fit_bds(primates, sampling_fraction)
+analysis <- fit_bds(primates, sampling_fraction)
+mymodel <- analysis$model
+tree <- analysis$td
 ```
 
 This will give you a `tidytree` object which contains the average net-diversification rates for each branch
