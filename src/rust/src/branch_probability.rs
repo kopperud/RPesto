@@ -42,21 +42,21 @@ impl BranchProbabilityMultiState{
 
 
 
+#[allow(nonstandard_style)]
 impl Gradient for BranchProbabilityMultiState{
     fn gradient(&self, du: &mut Vec<f64>, u: &Vec<f64>, _t: &f64 ) -> (){
         let k = u.len() / 2;
         let r = self.eta / (k as f64 - 1.0);
 
-        //let et = self.extinction_probability.interpolate(*t);
-        // E(t)
         let sum_E: f64 = u[0..k].iter().sum();
+        let sum_D: f64 = u[(k+1)..(2*k)].iter().sum();
 
-
+        // E(t)
         for i in 0..k{
             du[i] = self.mu[i] - (self.mu[i] + self.lambda[i] + self.eta) * u[i] + self.lambda[i] * u[i] * u[i] + r * (sum_E - u[i]);
         }
-        let sum_D: f64 = u[(k+1)..(2*k)].iter().sum();
 
+        // D(t)
         for i in 0..k{
             du[k+i] =  - (self.mu[i] + self.lambda[i] + self.eta) * u[k+i] + 2.0 * self.lambda[i] * u[k+i] * u[i] + r * (sum_D - u[k+i]);
         }
