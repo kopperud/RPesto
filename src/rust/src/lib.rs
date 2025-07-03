@@ -131,6 +131,7 @@ impl Phylogeny {
     pub fn branch_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize) -> (){
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
         model.net_diversification(&mut self.tree );
+        model.speciation(&mut self.tree );
     }
 
     pub fn number_of_shifts(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> (){

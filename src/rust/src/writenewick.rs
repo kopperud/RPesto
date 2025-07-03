@@ -37,8 +37,9 @@ impl WriteNewick for Node{
 
         let mut items = Vec::new();
 
-        add_variable(self.r, &mut items, "netdiv");
-        add_variable(self.number_of_shifts, &mut items, "nshifts");
+        add_variable(self.r, &mut items, "mean_netdiv");
+        add_variable(self.lambda, &mut items, "mean_lambda");
+        add_variable(self.number_of_shifts, &mut items, "nshift");
         add_variable(self.bayes_factor, &mut items, "shift_bf");
 
         if !items.is_empty(){
