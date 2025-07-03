@@ -35,7 +35,7 @@ pub fn normalize(x: &mut Vec<f64>) -> (){
     }
 }
 
-
+/*
 fn sequence(from: f64, to: f64, num: usize) -> Vec<f64> {
     let mut v = Vec::new();
     
@@ -50,3 +50,4 @@ fn sequence(from: f64, to: f64, num: usize) -> Vec<f64> {
 
     return v;
 }
+*/
