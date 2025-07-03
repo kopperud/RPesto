@@ -19,8 +19,9 @@ pub struct ShiftBD {
 }
 
 
+        //let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
 impl ShiftBD{
-    pub fn new(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, rho: f64, n: usize) -> ShiftBD{
+    pub fn new(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize) -> ShiftBD{
 
         let k = n*n;
 
