@@ -15,21 +15,10 @@ pub fn parse_tree(contents: String) -> Box<Node> {
 
 
 pub fn parse_newick(tokens: VecDeque<&str>) -> Box<Node> {
-    let mut node = Box::new(Node {
-        label: "".to_string(),
-        length: 0.0,
-        children: Vec::new(),
-        extinction_probability: None,
-        subtree_probability: None,
-        forward_probability: None,
-        r: None,
-        delta_netdiv: None,
-        lambda: None,
-        mu: None,
-        number_of_shifts: None,
-        bayes_factor: None,
-    });
-    
+    let mut node = Box::new(
+        Node::new("".to_string(), 0.0)
+    );
+        
     // strip semicolon
     let mut slice = tokens.clone();
     //slice.remove(slice.len()-1);
@@ -60,20 +49,9 @@ fn terminaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>){
     let l = parse_brlen(end_token);
     let species_name = parse_speciesname(end_token);
 
-    let node = Box::new(Node {
-        label: species_name.to_string(),
-        length: l,
-        children: Vec::new(),
-        extinction_probability: None,
-        subtree_probability: None,
-        forward_probability: None,
-        r: None,
-        delta_netdiv: None,
-        lambda: None,
-        mu: None,
-        number_of_shifts: None,
-        bayes_factor: None,
-    });
+    let node = Box::new(
+        Node::new(species_name.to_string(), l)
+    );
 
     parent_node.children.push(node);
 }
@@ -91,21 +69,9 @@ fn internaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>) {
     let internal_label: String = "".to_string();
 
     // add a new internal node and branch
-    let mut node = Box::new(Node {
-        label: internal_label,
-        length: l,
-        children: Vec::new(),
-        extinction_probability: None,
-        subtree_probability: None,
-        forward_probability: None,
-        r: None,
-        delta_netdiv: None,
-        lambda: None,
-        mu: None,
-        number_of_shifts: None,
-        bayes_factor: None,
-    });
-
+    let mut node = Box::new(
+        Node::new(internal_label.to_string(), l)
+    );
 
     let sides = partition(slice);
 
