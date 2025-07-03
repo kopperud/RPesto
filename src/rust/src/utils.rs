@@ -34,3 +34,19 @@ pub fn normalize(x: &mut Vec<f64>) -> (){
         (*xi) = (*xi) / sum;
     }
 }
+
+
+fn sequence(from: f64, to: f64, num: usize) -> Vec<f64> {
+    let mut v = Vec::new();
+    
+    let delta = (to - from) / (num as f64);
+
+    let mut val = from;
+    for _ in 0..num{
+        v.push(val);
+        val += delta;
+    }
+    v.push(val);
+
+    return v;
+}

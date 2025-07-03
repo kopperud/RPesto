@@ -10,6 +10,9 @@ pub trait BranchRates{
 
     fn speciation( &self, node: &mut Box<Node> ) -> ();
     fn speciation_preorder( &self, node: &mut Box<Node>, time: f64) -> ();
+
+    fn extinction( &self, node: &mut Box<Node> ) -> ();
+    fn extinction_preorder( &self, node: &mut Box<Node>, time: f64) -> ();
 }
 
 impl BranchRates for ShiftBD{
@@ -55,10 +58,10 @@ impl BranchRates for ShiftBD{
         }
     }
 
-fn speciation( &self, tree: &mut Box<Node>) -> (){
-    let time = treeheight(tree);
-        self.speciation_preorder( tree, time );
-    }
+    fn speciation( &self, tree: &mut Box<Node>) -> (){
+        let time = treeheight(tree);
+            self.speciation_preorder( tree, time );
+        }
 
     fn speciation_preorder( &self, node: &mut Box<Node>, time: f64) -> () {
         let t0 = time;
@@ -96,6 +99,46 @@ fn speciation( &self, tree: &mut Box<Node>) -> (){
         }
     }
 
+    fn extinction( &self, tree: &mut Box<Node>) -> (){
+        let time = treeheight(tree);
+            self.extinction_preorder( tree, time );
+        }
+
+    fn extinction_preorder( &self, node: &mut Box<Node>, time: f64) -> () {
+        let t0 = time;
+        let t1 = t0 - node.length;
+
+        let n = 6;
+        let mut mu_acc = 0.0;
+
+        // t0 is older time
+        // t1 is younger time
+        // meaning that, t0 >= t1
+        // and delta_t =< 0.0
+        let delta_t = (t1 - t0) / ((n-1) as f64);
+        let mut time = t0;
+
+        for _ in 0..n{
+            let s = node.marginal_probability(time);
+            let k = s.len();
+
+            let mut ri = 0.0;
+            for i in 0..k{
+                ri += s[i] * (self.mu[i]);
+            }
+            mu_acc += ri;
+            time += delta_t;
+        }
+
+        let mu_mean = mu_acc / (n as f64);
+
+        //assign to node
+        node.mu = Some(mu_mean);
+
+        for child_node in node.children.iter_mut(){
+            self.extinction_preorder(child_node, t1);
+        }
+    }
 }
 
 

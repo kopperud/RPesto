@@ -1,17 +1,12 @@
 use extendr_api::prelude::*;
 use microbench::{self, Options};
 
-use crate::tokenizer::tokenize;
 use crate::parser::*;
 use crate::extinction::*;
-use crate::branch_probability::*;
-use crate::utils::*;
 use crate::odesolver::*;
 use crate::likelihood::*;
 use crate::preorder::*;
 use crate::models::*;
-use crate::categories::*;
-use crate::marginal_probability::*;
 use crate::tree::Node;
 use crate::branchrates::*;
 use crate::writenewick::*;
@@ -45,20 +40,7 @@ fn hello_world() -> &'static str {
 }
 
 
-fn sequence(from: f64, to: f64, num: usize) -> Vec<f64> {
-    let mut v = Vec::new();
-    
-    let delta = (to - from) / (num as f64);
 
-    let mut val = from;
-    for _ in 0..num{
-        v.push(val);
-        val += delta;
-    }
-    v.push(val);
-
-    return v;
-}
 
 #[extendr]
 fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api::List{
@@ -132,6 +114,7 @@ impl Phylogeny {
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
         model.net_diversification(&mut self.tree );
         model.speciation(&mut self.tree );
+        model.extinction(&mut self.tree );
     }
 
     pub fn number_of_shifts(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> (){

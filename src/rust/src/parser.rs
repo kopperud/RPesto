@@ -24,6 +24,7 @@ pub fn parse_newick(tokens: VecDeque<&str>) -> Box<Node> {
         forward_probability: None,
         r: None,
         lambda: None,
+        mu: None,
         number_of_shifts: None,
         bayes_factor: None,
     });
@@ -67,6 +68,7 @@ fn terminaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>){
         forward_probability: None,
         r: None,
         lambda: None,
+        mu: None,
         number_of_shifts: None,
         bayes_factor: None,
     });
@@ -96,6 +98,7 @@ fn internaledge(tokens: VecDeque<&str>, parent_node: &mut Box<Node>) {
         forward_probability: None,
         r: None,
         lambda: None,
+        mu: None,
         number_of_shifts: None,
         bayes_factor: None,
     });
