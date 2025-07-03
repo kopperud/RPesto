@@ -148,7 +148,6 @@ where
         let mut u5 = vec![0.0; n];
         let mut u6 = vec![0.0; n];
 
-        //let tol = 1e-4;
         let mut u = u0; 
         let mut t = t0;
         let mut error_estimate: f64;
@@ -161,20 +160,13 @@ where
 
         let mut delta_t = (t1 - t0) / (n_steps_init as f64);
 
-        let mut number_of_steps = 0;
-
         let mut c = go(&t, &t1, &delta_t);
 
-        //while t < t1 {
         while c{
             // if overshoot, shorten delta_t
             if overshoot(t, t1, delta_t){
                 delta_t = t1 - t;
             }
-
-            //println!("delta_t = {}", delta_t);
-            //println!("t = {}", t);
-            //println!("t1 = {}", t1);
 
             self.gradient(&mut k1, &u, &t);
 
@@ -242,7 +234,6 @@ where
             }else{
                 delta_t *= 0.4;
             }
-            number_of_steps += 1;
 
             c = go(&t, &t1, &delta_t);
         }
