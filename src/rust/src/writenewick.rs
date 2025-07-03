@@ -35,15 +35,30 @@ impl WriteNewick for Node{
             s.push(')');
         }
 
-        //s.push('[');
-        let x = format!("[&netdiv={},nshifts={},shift_bf={}]", self.r.unwrap(), self.number_of_shifts.unwrap(), self.bayes_factor.unwrap());
-        s.push_str(x.as_str());
-        //s.push(']');
+        let mut items = Vec::new();
+
+        add_variable(self.r, &mut items, "netdiv");
+        add_variable(self.number_of_shifts, &mut items, "nshifts");
+        add_variable(self.bayes_factor, &mut items, "shift_bf");
+
+        if !items.is_empty(){
+            let joined = items.join(",");
+            let x = format!("[&{}]", joined);
+            s.push_str(x.as_str());
+        }
+        
         s.push(':');
         let brlen = self.length.to_string();
         s.push_str(brlen.as_str());
     }
 }
 
+
+fn add_variable(variable: Option<f64>, items: &mut Vec<String>, label: &str) -> (){
+    match variable{
+       Some(x) => items.push(format!("{}={}", label, x)),
+       _ => (),
+    }
+}
 
 
