@@ -38,6 +38,7 @@ impl WriteNewick for Node{
         let mut items = Vec::new();
 
         add_variable(self.r, &mut items, "mean_netdiv");
+        add_variable(self.delta_netdiv, &mut items, "delta_netdiv");
         add_variable(self.lambda, &mut items, "mean_lambda");
         add_variable(self.mu, &mut items, "mean_mu");
         add_variable(self.number_of_shifts, &mut items, "nshift");

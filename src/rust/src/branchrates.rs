@@ -3,6 +3,8 @@ use crate::height::*;
 use crate::models::*;
 use crate::tree::*;
 
+use itertools::izip;
+
 // the marginal probability trait 
 pub trait BranchRates{
     fn net_diversification( &self, node: &mut Box<Node> ) -> ();
@@ -52,6 +54,27 @@ impl BranchRates for ShiftBD{
 
         //assign to node
         node.r = Some(net_div);
+
+        // delta_netdiv: the change in netdiv across the branch
+        let netdiv_old: f64 = izip!(
+            node.marginal_probability(t0),
+            &self.lambda,
+            &self.mu,
+        )
+            .map(|(p,l,m)| p*(l-m))
+            .sum();
+
+        let netdiv_young: f64 = izip!(
+            node.marginal_probability(t1),
+            &self.lambda,
+            &self.mu,
+        )
+            .map(|(p,l,m)| p*(l-m))
+            .sum();
+
+        let delta_netdiv = netdiv_young - netdiv_old;
+
+        node.delta_netdiv = Some(delta_netdiv);
 
         for child_node in node.children.iter_mut(){
             self.net_diversification_preorder(child_node, t1);
