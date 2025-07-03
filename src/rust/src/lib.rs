@@ -39,8 +39,6 @@ fn hello_world() -> &'static str {
 }
 
 
-
-
 #[extendr]
 fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api::List{
     let ode = Extinction{mu, lambda};

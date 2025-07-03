@@ -117,6 +117,25 @@ impl BranchRates for ShiftBD{
         //assign to node
         node.lambda = Some(lambda_mean);
 
+        // delta_lambda: the change in lambda across the branch
+        let lambda_old: f64 = 
+            node.marginal_probability(t0)
+            .iter()
+            .zip(&self.lambda)
+            .map(|(p, l)| p*l)
+            .sum();
+
+        let lambda_young: f64 = 
+            node.marginal_probability(t1)
+            .iter()
+            .zip(&self.lambda)
+            .map(|(p, l)| p*l)
+            .sum();
+
+        let delta_lambda = lambda_young - lambda_old;
+
+        node.delta_lambda = Some(delta_lambda);
+
         for child_node in node.children.iter_mut(){
             self.speciation_preorder(child_node, t1);
         }
@@ -157,6 +176,27 @@ impl BranchRates for ShiftBD{
 
         //assign to node
         node.mu = Some(mu_mean);
+
+        // delta_mu: the change in mu across the branch
+        let mu_old: f64 = 
+            node.marginal_probability(t0)
+            .iter()
+            .zip(&self.mu)
+            .map(|(p, m)| p*m)
+            .sum();
+
+        let mu_young: f64 = 
+            node.marginal_probability(t1)
+            .iter()
+            .zip(&self.mu)
+            .map(|(p, l)| p*l)
+            .sum();
+
+        let delta_mu = mu_young - mu_old;
+
+        node.delta_mu = Some(delta_mu);
+
+
 
         for child_node in node.children.iter_mut(){
             self.extinction_preorder(child_node, t1);

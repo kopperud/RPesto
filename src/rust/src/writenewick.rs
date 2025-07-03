@@ -40,6 +40,7 @@ impl WriteNewick for Node{
         add_variable(self.r, &mut items, "mean_netdiv");
         add_variable(self.delta_netdiv, &mut items, "delta_netdiv");
         add_variable(self.lambda, &mut items, "mean_lambda");
+        add_variable(self.delta_lambda, &mut items, "delta_lambda");
         add_variable(self.mu, &mut items, "mean_mu");
         add_variable(self.number_of_shifts, &mut items, "nshift");
         add_variable(self.bayes_factor, &mut items, "shift_bf");

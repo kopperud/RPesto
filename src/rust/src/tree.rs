@@ -17,15 +17,20 @@ use crate::spline::MonotonicCubicSpline;
 pub struct Node {
     pub label: String,
     pub length: f64,
-    //pub index: i32,
     pub children: Vec<Box<Node>>,
+
+    // these are functions that return probabilities
     pub extinction_probability: Option<MonotonicCubicSpline>,
     pub subtree_probability: Option<MonotonicCubicSpline>,
     pub forward_probability: Option<MonotonicCubicSpline>,
+
+    // these are summary statistics that we want in the newick output
     pub r: Option<f64>,
     pub delta_netdiv: Option<f64>,
     pub lambda: Option<f64>,
+    pub delta_lambda: Option<f64>,
     pub mu: Option<f64>,
+    pub delta_mu: Option<f64>,
     pub number_of_shifts: Option<f64>,
     pub bayes_factor: Option<f64>,
 }
@@ -35,8 +40,6 @@ pub struct Node {
 impl Node {
     pub fn new(label: String, length: f64) -> Self {
         let children: Vec<Box<Node>> = Vec::new(); 
-        //let index = 0;
-        //Self {label, length, index, children }
         Self {
             label,
             length,
@@ -47,7 +50,9 @@ impl Node {
             r: None,
             delta_netdiv: None,
             lambda: None,
+            delta_lambda: None,
             mu: None,
+            delta_mu: None,
             number_of_shifts: None,
             bayes_factor: None,
         }
