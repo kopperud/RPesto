@@ -165,7 +165,6 @@ where
 
         let mut c = go(&t, &t1, &delta_t);
 
-
         //while t < t1 {
         while c{
             // if overshoot, shorten delta_t
@@ -240,21 +239,13 @@ where
                 }
                 t += delta_t;
 
-                //println!("accept ODE step");
-
-            // reject, go again with smaller delta t
             }else{
-                //println!("delta_t before = {}", delta_t);
                 delta_t *= 0.4;
-                //println!("error too large, go again");
-                //println!("delta_t after shortening = {}", delta_t);
             }
             number_of_steps += 1;
 
             c = go(&t, &t1, &delta_t);
-            //println!("delta_t now = {}", delta_t);
         }
-        //println!("number of steps (dopri45): {}", number_of_steps);
         
         if t0 == t1{
             sol.push(u.clone());
@@ -283,15 +274,13 @@ fn go(t: &f64, t1: &f64, delta_t: &f64) -> bool{
 }
 
 fn overshoot(t: f64, t1: f64, delta_t: f64) -> bool{
-    let mut res = false;
-
-    if delta_t > 0.0{
-        res = (t + delta_t) > t1;
+    let res = if delta_t > 0.0{
+        (t + delta_t) > t1
     }else if delta_t < 0.0{
-        res = (t + delta_t) < t1;
+        (t + delta_t) < t1
     }else{
-        panic!("asd");
-    }
+        panic!("delta_t is zero when it shoult not be. error in ODE solver");
+    };
 
     return res;
 }
