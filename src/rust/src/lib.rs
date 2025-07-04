@@ -1,3 +1,6 @@
+#![allow(non_snake_case)]
+
+
 use extendr_api::prelude::*;
 
 use crate::parser::*;
@@ -11,6 +14,7 @@ use crate::branchrates::*;
 use crate::writenewick::*;
 use crate::number_of_shifts::*;
 use crate::bayes_factor::*;
+use crate::conditioning::*;
 
 pub mod spline;
 pub mod marginal_probability;
@@ -30,6 +34,7 @@ pub mod models;
 pub mod writenewick;
 pub mod number_of_shifts;
 pub mod bayes_factor;
+pub mod conditioning;
 
 /// Return string `"Hello world!"` to R.
 /// @export
@@ -80,15 +85,33 @@ impl Phylogeny {
         println!("{:?}", self.tree); 
     }
 
-    fn bd_likelihood(&mut self, lambda: f64, mu: f64, rho: f64, tol: f64, store: bool) -> f64{
+    fn bd_likelihood(&mut self, lambda: f64, mu: f64, rho: f64, tol: f64, store: bool, condition_survival: bool, condition_root_speciation: bool) -> f64{
         let model = ConstantBD{lambda, mu, rho};
-        let lnl = model.likelihood(&mut self.tree, tol, store);
+
+        let mut conditions: Vec<Condition> = Vec::new();
+        if condition_survival{
+            conditions.push(Condition::Survival);
+        }
+        if condition_root_speciation{
+            conditions.push(Condition::RootSpeciation);
+        }
+
+        let lnl = model.likelihood(&mut self.tree, conditions, tol, store);
         return lnl;
     }
 
-    pub fn bds_likelihood(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64, store: bool) -> f64{
+    pub fn bds_likelihood(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64, store: bool, condition_survival: bool, condition_root_speciation: bool) -> f64{
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
-        let lnl = model.likelihood(&mut self.tree, tol, store);
+
+        let mut conditions: Vec<Condition> = Vec::new();
+        if condition_survival{
+            conditions.push(Condition::Survival);
+        }
+        if condition_root_speciation{
+            conditions.push(Condition::RootSpeciation);
+        }
+
+        let lnl = model.likelihood(&mut self.tree, conditions, tol, store);
 
         return lnl;
     }

@@ -1,32 +1,47 @@
+use crate::extinction::*;
 use crate::odesolver::{EquationType, Solve};
 use crate::tree::*;
 use crate::height::*;
 use crate::branch_probability::*;
 use crate::models::*;
 use crate::spline::*;
+use crate::conditioning::*;
 
 use rayon::iter::ParallelIterator;
 use rayon::prelude::*;
 
 // the likelihood trait 
 pub trait Likelihood<T>{
-    fn likelihood( &self, tree: &mut Box<Node>, tol: f64, store: bool) -> f64;
+    fn likelihood( &self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, store: bool) -> f64;
     fn likelihood_po( &self, node: &mut Box<Node>, ode: &T, time: f64, tol: f64, store: bool) -> (Vec<f64>, f64);
 }
 
 // the likelihood implementation for constant-rate birth death model
 impl Likelihood<BranchProbability> for ConstantBD{
-    fn likelihood(&self, tree: &mut Box<Node>, tol: f64, store: bool) -> f64{
+    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, store: bool) -> f64{
         let height = treeheight(&tree);
 
         let time = height;
 
         let ode = BranchProbability::new(self.lambda, self.mu);
 
-        let (p, sf) = self.likelihood_po(tree, &ode, time, tol, store);
+        let (u, sf) = self.likelihood_po(tree, &ode, time, tol, store);
+        let mut p = u[0];
 
+        if conditions.contains(&Condition::Survival){
+            let ode = Extinction{lambda: self.lambda, mu: self.mu};
+            let u0 = vec![1.0 - self.rho];
+            let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, EquationType::Probability);
+            let e = w[0][0];
 
-        let lnl = p[0].ln() + sf;
+            p = p / ((1.0 - e) * (1.0 - e));
+        }
+
+        if conditions.contains(&Condition::RootSpeciation){
+            p = p / self.lambda;
+        }
+
+        let lnl = p.ln() + sf;
         return lnl;
     }
 
@@ -86,7 +101,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
 
 // the likelihood implementation for birth-death-shift model
 impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
-    fn likelihood(&self, tree: &mut Box<Node>, tol: f64, store: bool) -> f64{
+    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, store: bool) -> f64{
         let height = treeheight(&tree);
 
         let time = height;
@@ -95,13 +110,35 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
         let (p, sf) = self.likelihood_po(tree, &ode, time, tol, store);
 
+        let mut e: Vec<f64> = Vec::new();
+
+        if conditions.contains(&Condition::Survival){
+            let ode = ExtinctionMultiState{lambda: self.lambda.clone(), mu: self.mu.clone(), eta: self.eta};
+            let u0 = vec![1.0 - self.rho; self.k];
+            let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, EquationType::Probability);
+            e.extend(w.last().unwrap());
+        }
+
         let root_prior = vec![1.0 / (self.k as f64); self.k];
 
         let mut lnl = 0.0;
         let mut pr = 0.0;
         for i in 0..self.k{
-            pr += root_prior[i] * p[self.k+i];
+            let mut x = root_prior[i] * p[self.k+i];
+
+            if conditions.contains(&Condition::Survival){
+                x = x / ((1.0 - e[i]) * (1.0 - e[i]));
+            }
+
+            if conditions.contains(&Condition::RootSpeciation){
+                x = x / self.lambda[i];
+            }
+            pr += x;
         }
+
+
+
+
         lnl += pr.ln() + sf;
 
         return lnl;

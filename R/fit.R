@@ -8,10 +8,12 @@
 #' @param num_classes the number of rate class discretizations (n), such that rate categories is k = n^2
 #' @param sd the spread parameter for the log-normal base distribution
 #' @param tol the local error threshold in the numerical ODE solver (per delta_t time step)
+#' @param condition_survival whether or not to condition on the survival of the left and right lineages descending from the root (default TRUE)
+#' @param condition_root_speciation whether or not to condition on that there was a speciation event at the root node (default TRUE)
 #'
 #'
 #' @export
-fit_bds <- function(phy, sampling_fraction, lambda_hat, mu_hat, eta, num_classes = 6, sd = 0.587, tol = 1e-6){
+fit_bds <- function(phy, sampling_fraction, lambda_hat, mu_hat, eta, num_classes = 6, sd = 0.587, tol = 1e-6, condition_survival = TRUE, condition_root_speciation = TRUE){
     newick_string <- ape::write.tree(phy)
     phylogeny <- Phylogeny$new(newick_string)
 
@@ -19,7 +21,7 @@ fit_bds <- function(phy, sampling_fraction, lambda_hat, mu_hat, eta, num_classes
         ## fit constant-rate model
         bd_opt <- stats::optim(
             par = c(0.1, 0.05),
-            fn = function(x) phylogeny$bd_likelihood(x[1], x[2], sampling_fraction, tol, FALSE),
+            fn = function(x) phylogeny$bd_likelihood(x[1], x[2], sampling_fraction, tol, FALSE, condition_survival, condition_root_speciation),
             lower = c(0.00001, 0.00001),
             upper = c(2.0, 2.0),
             method = "L-BFGS-B",
@@ -39,7 +41,7 @@ fit_bds <- function(phy, sampling_fraction, lambda_hat, mu_hat, eta, num_classes
         ## fit BDS model
         bds_opt <- stats::optim(
             par = c(0.005),
-            fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_classes, tol, FALSE),
+            fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_classes, tol, FALSE, condition_survival, condition_root_speciation),
             lower = c(1e-8),
             upper = c(0.1),
             method = "Brent",
@@ -51,7 +53,7 @@ fit_bds <- function(phy, sampling_fraction, lambda_hat, mu_hat, eta, num_classes
     }
 
     # store D(t) as a cubic spline 
-    phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol, TRUE)
+    phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol, TRUE, condition_survival, condition_root_speciation)
 
     # calculate F(t)
     phylogeny$bds_preorder(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol);
