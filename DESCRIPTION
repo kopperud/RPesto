@@ -1,8 +1,9 @@
 Package: RPesto
 Title: Phylogenetic Estimation of Shifts in the Tempo of Origination 
-Version: 0.1.0.9000
+Version: 0.1.1.9000
 Authors@R: 
-    person("Bjorn Tore", "Kopperud", , "kopperud@protonmail.com", role = c("aut", "cre"))
+    c(person("Bj\u00F8rn Tore", "Kopperud", role = c("aut", "cre"), email = "kopperud@protonmail.com"),
+      person("Sebastian", "H\u00F6hna", role = c("aut")))
 Description: This package can estimate branch-specific diversification rates fast and efficiently.
 License: MIT + file LICENSE
 Encoding: UTF-8
