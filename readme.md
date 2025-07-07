@@ -55,11 +55,11 @@ Galagoides_zanzibaricus, Galagoides_demidoff, Galago_alleni, ...
 Rooted; includes branch length(s).
 
 with the following features available:
-  'netdiv'.
+  'mean_netdiv'.
 
 # The associated data tibble abstraction: 465 × 4
 # The 'node', 'label' and 'isTip' are from the phylo tree.
-    node label                   isTip netdiv
+    node label                   isTip mean_netdiv
    <int> <chr>                   <lgl>  <dbl>
  1     1 Galago_matschiei        TRUE  0.0869
  2     2 Euoticus_pallidus       TRUE  0.0874
@@ -81,7 +81,7 @@ We can also use `ggtree` to plot the results
 ```R
 library(ggtree)
 
-ggtree(tree, aes(color = netdiv))
+ggtree(tree, aes(color = mean_netdiv))
 ```
 ![primatestree](data/primates.png)
 
