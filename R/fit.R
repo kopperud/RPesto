@@ -10,10 +10,23 @@
 #' @param tol the local error threshold in the numerical ODE solver (per delta_t time step)
 #' @param condition_survival whether or not to condition on the survival of the left and right lineages descending from the root (default TRUE)
 #' @param condition_root_speciation whether or not to condition on that there was a speciation event at the root node (default TRUE)
+#' @param extinction_approximation whether or not to approximate the extinction probability calculations, by assuming that rate shift events are not allowed on extinct lineages (default FALSE)
 #'
 #'
 #' @export
-fit_bds <- function(phy, sampling_fraction, lambda_hat, mu_hat, eta, num_classes = 6, sd = 0.587, tol = 1e-6, condition_survival = TRUE, condition_root_speciation = TRUE){
+fit_bds <- function(
+        phy, 
+        sampling_fraction,
+        lambda_hat,
+        mu_hat,
+        eta,
+        num_classes = 6,
+        sd = 0.587,
+        tol = 1e-6,
+        condition_survival = TRUE,
+        condition_root_speciation = TRUE,
+        extinction_approximation = FALSE
+    ){
     newick_string <- ape::write.tree(phy)
     phylogeny <- Phylogeny$new(newick_string)
 
@@ -41,7 +54,7 @@ fit_bds <- function(phy, sampling_fraction, lambda_hat, mu_hat, eta, num_classes
         ## fit BDS model
         bds_opt <- stats::optim(
             par = c(0.005),
-            fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_classes, tol, FALSE, condition_survival, condition_root_speciation),
+            fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_classes, tol, FALSE, condition_survival, condition_root_speciation, extinction_approximation),
             lower = c(1e-8),
             upper = c(0.1),
             method = "Brent",
@@ -53,7 +66,7 @@ fit_bds <- function(phy, sampling_fraction, lambda_hat, mu_hat, eta, num_classes
     }
 
     # store D(t) as a cubic spline 
-    phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol, TRUE, condition_survival, condition_root_speciation)
+    phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol, TRUE, condition_survival, condition_root_speciation, extinction_approximation)
 
     # calculate F(t)
     phylogeny$bds_preorder(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol);

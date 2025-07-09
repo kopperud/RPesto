@@ -16,12 +16,13 @@ pub struct ShiftBD {
     pub k: usize,
     pub lambda: Vec<f64>,
     pub mu: Vec<f64>,
+    pub extinction_approximation: bool,
 }
 
 
         //let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
 impl ShiftBD{
-    pub fn new(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize) -> ShiftBD{
+    pub fn new(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, extinction_approximation: bool) -> ShiftBD{
 
         let k = n*n;
 
@@ -35,6 +36,7 @@ impl ShiftBD{
             k,
             lambda,
             mu,
+            extinction_approximation,
         };
 
         return model;

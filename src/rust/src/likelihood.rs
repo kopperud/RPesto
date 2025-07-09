@@ -106,14 +106,19 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
         let time = height;
 
-        let ode = BranchProbabilityMultiState::new(self.lambda.clone(), self.mu.clone(), self.eta);
+        let ode = BranchProbabilityMultiState::new(self.lambda.clone(), self.mu.clone(), self.eta, self.extinction_approximation);
 
         let (p, sf) = self.likelihood_po(tree, &ode, time, tol, store);
 
         let mut e: Vec<f64> = Vec::new();
 
         if conditions.contains(&Condition::Survival){
-            let ode = ExtinctionMultiState{lambda: self.lambda.clone(), mu: self.mu.clone(), eta: self.eta};
+            let ode = ExtinctionMultiState{
+                lambda: self.lambda.clone(),
+                mu: self.mu.clone(),
+                eta: self.eta, 
+                extinction_approximation: self.extinction_approximation,
+            };
             let u0 = vec![1.0 - self.rho; self.k];
             let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, EquationType::Probability);
             e.extend(w.last().unwrap());

@@ -26,11 +26,17 @@ pub struct BranchProbabilityMultiState{
     pub lambda: Vec<f64>,
     pub mu: Vec<f64>,
     pub eta: f64,
+    pub extinction_approximation: bool,
 }
 
 impl BranchProbabilityMultiState{
-    pub fn new(lambda: Vec<f64>, mu: Vec<f64>, eta: f64) -> BranchProbabilityMultiState {
-        let res = BranchProbabilityMultiState{lambda, mu, eta};
+    pub fn new(lambda: Vec<f64>, mu: Vec<f64>, eta: f64, extinction_approximation: bool) -> BranchProbabilityMultiState {
+        let res = BranchProbabilityMultiState{
+            lambda,
+            mu,
+            eta,
+            extinction_approximation,
+        };
         return res;
     }
 }
@@ -47,8 +53,14 @@ impl Gradient for BranchProbabilityMultiState{
         let sum_D: f64 = u[(k+1)..(2*k)].iter().sum();
 
         // E(t)
-        for i in 0..k{
-            du[i] = self.mu[i] - (self.mu[i] + self.lambda[i] + self.eta) * u[i] + self.lambda[i] * u[i] * u[i] + r * (sum_E - u[i]);
+        if self.extinction_approximation{
+            for i in 0..k{
+                du[i] = self.mu[i] - (self.mu[i] + self.lambda[i]) * u[i] + self.lambda[i] * u[i] * u[i]; 
+            }
+        }else{
+            for i in 0..k{
+                du[i] = self.mu[i] - (self.mu[i] + self.lambda[i] + self.eta) * u[i] + self.lambda[i] * u[i] * u[i] + r * (sum_E - u[i]);
+            }
         }
 
         // D(t)

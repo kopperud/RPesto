@@ -15,6 +15,7 @@ pub struct ExtinctionMultiState{
     pub lambda: Vec<f64>,
     pub mu: Vec<f64>,
     pub eta: f64,
+    pub extinction_approximation: bool,
 }
 
 impl Gradient for ExtinctionMultiState{
@@ -24,9 +25,16 @@ impl Gradient for ExtinctionMultiState{
 
         let sum_u: f64 = u.iter().sum();
 
-        for i in 0..k{
-            du[i] = self.mu[i] - (self.mu[i] + self.lambda[i] + self.eta) * u[i] + self.lambda[i] * u[i] * u[i] + r * (sum_u - u[i]);
+        if self.extinction_approximation{
+            for i in 0..k{
+                du[i] = self.mu[i] - (self.mu[i] + self.lambda[i]) * u[i] + self.lambda[i] * u[i] * u[i] 
+            }
+        }else{
+            for i in 0..k{
+                du[i] = self.mu[i] - (self.mu[i] + self.lambda[i] + self.eta) * u[i] + self.lambda[i] * u[i] * u[i] + r * (sum_u - u[i]);
+            }
         }
+
 
         /*
         for i in 0..k{
