@@ -25,13 +25,16 @@ fit_bds <- function(
         tol = 1e-6,
         condition_survival = TRUE,
         condition_root_speciation = TRUE,
-        extinction_approximation = FALSE
+        extinction_approximation = FALSE,
+        verbose = FALSE
     ){
+    phy$node.label <- NULL
     newick_string <- ape::write.tree(phy)
     phylogeny <- Phylogeny$new(newick_string)
 
     if (missing(lambda_hat) & missing(mu_hat)){
         ## fit constant-rate model
+        if (verbose) print("fitting constant-rate model")
         bd_opt <- stats::optim(
             par = c(0.1, 0.05),
             fn = function(x) phylogeny$bd_likelihood(x[1], x[2], sampling_fraction, tol, FALSE, condition_survival, condition_root_speciation),
@@ -52,6 +55,7 @@ fit_bds <- function(
 
     if (missing(eta)){
         ## fit BDS model
+        if (verbose) print("fitting shift rate parameter")
         bds_opt <- stats::optim(
             par = c(0.005),
             fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_classes, tol, FALSE, condition_survival, condition_root_speciation, extinction_approximation),
@@ -66,18 +70,23 @@ fit_bds <- function(
     }
 
     # store D(t) as a cubic spline 
+    if (verbose) print("calculating dense postorder")
     phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol, TRUE, condition_survival, condition_root_speciation, extinction_approximation)
 
     # calculate F(t)
+    if (verbose) print("calculating F(t)")
     phylogeny$bds_preorder(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol);
 
     ## calculate netdiv per branch
+    if (verbose) print("calculating netdiv per branch")
     phylogeny$branch_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes);
 
     ## calculate no. shifts per branch
+    if (verbose) print("calculating number of shifts")
     phylogeny$number_of_shifts(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol);
 
     ## calculate Bayes factors per branch 
+    if (verbose) print("calculating Bayes factors")
     phylogeny$bayes_factors(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol);
 
     ## write newick string

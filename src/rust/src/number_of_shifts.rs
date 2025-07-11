@@ -83,12 +83,19 @@ impl NumberOfShifts<BranchProbabilityMultiState> for ShiftBD{
         let t0 = time;
         let t1 = time - node.length;
 
-        let (_, no_shifts_v) = shift_problem.solve_dopri45(u0, t0, t1, false, n_steps_init, tol, EquationType::Any);
+        let x = shift_problem.solve_dopri45(u0, t0, t1, false, n_steps_init, tol, EquationType::Any);
 
-        let no_shifts = no_shifts_v[0][0];
+        match x{
+            Ok((_, no_shifts_v)) => {
 
-        //node.forward_probability = Some(forward_probability);
-        node.number_of_shifts = Some(no_shifts);
+                let no_shifts = no_shifts_v[0][0];
+                //node.forward_probability = Some(forward_probability);
+                node.number_of_shifts = Some(no_shifts);
+            },
+            Err(_) => {
+                println!("could not calculate number of shifts for branch");
+            }
+        }
 
         for child_node in node.children.iter_mut(){
             self.number_of_shifts_pre(child_node, time - node.length, tol);

@@ -31,7 +31,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
         if conditions.contains(&Condition::Survival){
             let ode = Extinction{lambda: self.lambda, mu: self.mu};
             let u0 = vec![1.0 - self.rho];
-            let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, EquationType::Probability);
+            let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, EquationType::Probability).expect("could not calculate extinction probability in cbdp");
             let e = w[0][0];
 
             p = p / ((1.0 - e) * (1.0 - e));
@@ -86,7 +86,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
         let t0 = child_time;
         let t1 = time;
 
-        let (_times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, EquationType::ProbabilityDensity);
+        let (_times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, EquationType::ProbabilityDensity).expect("could not calculate branch probability in likelihood for cbdp");
     
         let mut p = sol[0].clone();
 
@@ -120,7 +120,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
                 extinction_approximation: self.extinction_approximation,
             };
             let u0 = vec![1.0 - self.rho; self.k];
-            let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, EquationType::Probability);
+            let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, EquationType::Probability).expect("could not calculate extinction probability");
             e.extend(w.last().unwrap());
         }
 
@@ -200,7 +200,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         let t0 = child_time;
         let t1 = time;
 
-        let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, EquationType::ProbabilityDensity);
+        let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, EquationType::ProbabilityDensity).expect("could not calculate branch probabiltiy E(t) and D(t) in likelihood function");
 
         let n = sol.len()-1;
 

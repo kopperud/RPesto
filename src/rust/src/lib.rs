@@ -52,7 +52,7 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
     let t0 = 0.0;
 
     let equation = EquationType::Probability;
-    let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 10, tol, equation);
+    let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 10, tol, equation).expect("asd");
 
 
     let mut m = Vec::new();

@@ -1,9 +1,23 @@
+//use std::cmp::max;
+use std::fmt;
+
 pub enum EquationType{
     Probability,
     LogProbability,
     ProbabilityDensity,
     Any,
 }
+
+#[derive(Debug, Clone)]
+pub struct SolverError;
+
+impl fmt::Display for SolverError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "could not solve ODE")
+    }
+}
+
+type Result<T> = std::result::Result<T, SolverError>;
 
 fn is_valid(u: &Vec<f64>, delta: &Vec<f64>, equation: &EquationType) -> bool{
     let x = match equation{
@@ -52,8 +66,8 @@ pub trait Gradient{
 
 // Two solvers
 pub trait Solve{
-    fn solve_rk4(    &self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps: i32) -> (Vec<f64>, Vec<Vec<f64>>);
-    fn solve_dopri45(      &self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps_init: i32, error_tolerance: f64, equation: EquationType) -> (Vec<f64>, Vec<Vec<f64>>);
+    fn solve_rk4(    &self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps: i32) -> Result<(Vec<f64>, Vec<Vec<f64>>)>;
+    fn solve_dopri45(&self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps_init: i32, error_tolerance: f64, equation: EquationType) -> Result<(Vec<f64>, Vec<Vec<f64>>) >;
 }
 
 // This is a generic implementation, it implements
@@ -64,7 +78,7 @@ where
     T: Gradient,
 {
     // the Runge-Kutta 4 algorithm
-    fn solve_rk4(&self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps: i32) -> (Vec<f64>, Vec<Vec<f64>>) {
+    fn solve_rk4(&self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps: i32) -> Result<(Vec<f64>, Vec<Vec<f64>>)> {
         let n = u0.len();
 
         let mut k1 = vec![0.0; n];
@@ -120,14 +134,18 @@ where
         sol.push(u);
         times.push(t);
 
-        return (times, sol);
+        return Ok((times, sol));
     }
 
 
     // the Dormand-Prince 45 algorithm with error estimation and adaptive step size
     // Dormand, J.R.; Prince, P.J. (1980). "A family of embedded Runge-Kutta formulae". 
     // Journal of Computational and Applied Mathematics. 6 (1): 19–26. 
-    fn solve_dopri45(&self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps_init: i32, error_tolerance: f64, equation: EquationType) -> (Vec<f64>, Vec<Vec<f64>>) {
+    fn solve_dopri45(&self, u0: Vec<f64>, t0: f64, t1: f64, dense: bool, n_steps_init: i32, error_tolerance: f64, equation: EquationType) -> Result<(Vec<f64>, Vec<Vec<f64>>)> {
+        
+        let rtol = error_tolerance;
+        let atol = error_tolerance;
+
         let n = u0.len();
         let mut k1 = vec![0.0; n];
         let mut k2 = vec![0.0; n];
@@ -200,20 +218,45 @@ where
             // fourth and fifth-order solutions
             error_estimate = 0.0;
 
+            // step control
+            //let mut sc = vec![0.0; n];
+            //
+            
+            let mut err = 0.0;
+
             for i in 0..n{
                 delta_four[i] = delta_t * (B1*k1[i]  + B2*k2[i]  + B3*k3[i]  + B4*k4[i]  + B5*k5[i]  + B6*k6[i] + B7*k7[i]);
                 delta_five[i] = delta_t * (A71*k1[i] + A72*k2[i] + A73*k3[i] + A74*k4[i] + A75*k5[i] + A76*k6[i]);
-                error_estimate += f64::abs(delta_four[i] - delta_five[i]);
+                //error_estimate += f64::abs(delta_four[i] - delta_five[i]);
+                // step control
+                let sci = atol + u[i].abs().max((u[i] + delta_four[i]).abs()) * rtol;
+                error_estimate += (delta_four[i] - delta_five[i]).abs();
+
+                err += ((delta_four[i] - delta_five[i]) / sci).powi(2);
             }
             error_estimate = error_estimate / (n as f64);
+            err = (err / (n as f64)).sqrt();
 
             // whether or not to accept solution
             let mut accept = false;
             
             let v = is_valid(&u, &delta_five, &equation);
 
-            if (error_estimate < error_tolerance) & v {
+            //if (error_estimate < error_tolerance) & v {
+            if (err <= 1.0) & v{
                 accept = true;
+            }else{
+                if delta_t.abs() < 1e-12{
+                    println!("aborting, |delta_t| is less than 1e-12 (it is {}). either the ODE error estimate is too large, or the solution is not valid (e.g., negative probability).", delta_t.abs());
+
+                    //println!("u = {:?}", u);
+                    //println!("delta_four = {:?}", delta_four);
+                    //println!("delta_five = {:?}", delta_five);
+                    
+                    return Err(SolverError);
+
+                    //panic!("panic here");
+                }
             }
 
             if accept{
@@ -226,10 +269,36 @@ where
                     u[i] += delta_five[i]; 
                 }
                 t += delta_t;
-
             }else{
-                delta_t *= 0.4;
+
             }
+
+
+            let facmax = 1.2;
+            let facmin = 0.8;
+
+            let p: f64 = 4.0; // first estimate is a fourth-order solution
+            let p_hat: f64 = 5.0; // second estimate is a fifth-order solution
+            let q = p.min(p_hat);
+
+            let fac = 0.95;
+
+            delta_t = delta_t * (fac * 1.0 / err).powf(1.0/(q + 1.0)).max(facmin).min(facmax);
+
+            if !v{
+                delta_t *= 0.8;
+            }//else{
+            //  delta_t = delta_t * (1.0 / err).powf(1.0/(q + 1.0)).max(facmin).min(facmax);
+            //}
+           
+            /*
+            println!("t = {}", t);
+            println!("err = {}", err);
+            println!("delta_t = {}", delta_t);
+            println!("u = {:?}", u);
+            println!("delta_four = {:?}", delta_four);
+            println!("delta_five = {:?}", delta_five);
+            */
 
             c = go(&t, &t1, &delta_t);
         }
@@ -242,9 +311,7 @@ where
         sol.push(u);
         times.push(t);
 
-
-
-        return (times, sol);
+        return Ok((times, sol));
     }
 }
 

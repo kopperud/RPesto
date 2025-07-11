@@ -64,7 +64,7 @@ impl Preorder<BranchProbabilityMultiState> for ShiftBD{
 
         let u0 = marginal_probability;
 
-        let (times, sol) = x.solve_dopri45(u0, t0, t1, true, n_steps_init, tol, EquationType::ProbabilityDensity);
+        let (times, sol) = x.solve_dopri45(u0, t0, t1, true, n_steps_init, tol, EquationType::ProbabilityDensity).expect("could not calculate preorder F(t) for branch");
 
 
         let sol_last = sol.last().cloned().unwrap();
