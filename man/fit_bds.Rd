@@ -15,7 +15,8 @@ fit_bds(
   tol = 1e-06,
   condition_survival = TRUE,
   condition_root_speciation = TRUE,
-  extinction_approximation = FALSE
+  extinction_approximation = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{

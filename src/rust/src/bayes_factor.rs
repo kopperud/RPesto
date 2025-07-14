@@ -5,6 +5,21 @@ use crate::branch_probability::*;
 use crate::models::*;
 use crate::spline::*;
 use crate::utils::*;
+use core::f64;
+use std::fmt;
+
+#[derive(Debug, Clone)]
+pub struct BayesFactorError;
+
+impl fmt::Display for BayesFactorError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "could not solve ODE")
+    }
+}
+
+type Result<T> = std::result::Result<T, BayesFactorError>;
+
+
 
 pub struct BayesFactorProblem{
     pub lambda: Vec<f64>,
@@ -50,9 +65,13 @@ impl Gradient for BayesFactorProblem{
     }
 }
 
+
 pub trait BayesFactor<T>{
     fn bayes_factors( &self, tree: &mut Box<Node>, tol: f64) -> ();
     fn bayes_factors_pre( &self, node: &mut Box<Node>, time: f64, tol: f64) -> ();
+
+    fn prob_no_shifts( &self, node: &mut Box<Node>, t0: f64, t1: f64, n_slices: usize) -> Vec<f64>;
+    fn prob_no_shifts_iterative( &self, node: &mut Box<Node>, t0: f64, t1: f64, tol: f64) -> Result<Vec<f64>>;
 }
 
 impl BayesFactor<BranchProbabilityMultiState> for ShiftBD{
@@ -64,21 +83,13 @@ impl BayesFactor<BranchProbabilityMultiState> for ShiftBD{
     }
 
     fn bayes_factors_pre(&self, node: &mut Box<Node>, time: f64, tol: f64) -> (){
-
-        let bayes_factor_problem = BayesFactorProblem::new(self.lambda.clone(), self.mu.clone(), self.eta, node.subtree_probability.clone().unwrap(), node.forward_probability.clone().unwrap());
-
-        let n_steps_init = 25;
-
-        let u0 = vec![0.0; self.k];
-
         let t0 = time;
         let t1 = time - node.length;
 
-        //let (_, log_prob_no_shifts) = bayes_factor_problem.solve_dopri45(u0, t0, t1, false, n_steps_init, tol, EquationType::LogProbability);
-        let x = bayes_factor_problem.solve_dopri45(u0, t0, t1, false, n_steps_init, tol, EquationType::LogProbability);
+        let x = self.prob_no_shifts_iterative(node, t0, t1, tol);
 
         match x{
-            Ok((_, log_prob_no_shifts)) => {
+            Ok(log_prob_no_shifts) => {
 
                 let d_t0 = node.subtree_probability.as_ref().unwrap().interpolate(t0);
                 let f_t0 = node.forward_probability.as_ref().unwrap().interpolate(t0);
@@ -92,7 +103,7 @@ impl BayesFactor<BranchProbabilityMultiState> for ShiftBD{
 
                 let mut probability_no_shifts = 0.0;
                 for i in 0..self.k{
-                    let p = marginal_probability_t0[i] * log_prob_no_shifts[0][i].exp();
+                    let p = marginal_probability_t0[i] * log_prob_no_shifts[i].exp();
                     probability_no_shifts += p;
                 }
 
@@ -117,9 +128,79 @@ impl BayesFactor<BranchProbabilityMultiState> for ShiftBD{
             }
         }
 
-        for child_node in node.children.iter_mut(){
+        for child_node in node.children
+            .iter_mut()
+            {
             self.bayes_factors_pre(child_node, time - node.length, tol);
         }
+    }
+
+
+    fn prob_no_shifts( &self, node: &mut Box<Node>, t0: f64, t1: f64, n_slices: usize) -> Vec<f64>{
+        let k = self.k;
+        let r = self.eta / (k as f64 - 1.0);
+
+        let delta_t = (t1 - t0) / (n_slices as f64);
+
+        let mut times = Vec::new();
+        for i in 0..n_slices{
+            //let t = t0 + 0.5*delta_t + delta_t * (i as f64);
+            let t = t0 + delta_t * (i as f64);
+            times.push(t);
+        }
+
+        let mut logX = vec![0.0; k];
+
+        for t in times{
+            let d = node.subtree_probability.clone().expect("asd").interpolate(t);
+            let sum_d = d.iter().fold(0.0, |acc, x| acc + x);
+
+            for j in 0..k{
+                //dlogX[j] = r * (sum_Dt - Dt[j]) / Dt[j];
+                logX[j] += delta_t * r * (sum_d / d[j] - 1.0);
+            }
+        }
+
+        return logX;
+    }
+    fn prob_no_shifts_iterative( &self, node: &mut Box<Node>, t0: f64, t1: f64, tol: f64) -> Result<Vec<f64>>{
+
+        let bayes_factor_problem = BayesFactorProblem::new(self.lambda.clone(), self.mu.clone(), self.eta, node.subtree_probability.clone().unwrap(), node.forward_probability.clone().unwrap());
+
+        let mut n= 8;
+        let mut res = vec![0.0; self.k];
+        let mut mean_err = f64::INFINITY;
+        let tol1 = tol * 100.0;
+
+        while mean_err > tol1{
+            n *= 2;
+
+            let u0 = vec![0.0; self.k];
+            let (_, logX1) = bayes_factor_problem.solve_rk4(u0, t0, t1, false, n-1).expect("asd");
+
+            let u0 = vec![0.0; self.k];
+            let (_, logX2) = bayes_factor_problem.solve_rk4(u0, t0, t1, false, n).expect("asd");
+
+            let low_order_estimate = &logX1[0];
+            let high_order_estimate = &logX2[0];
+
+            let mut sq_err = 0.0;
+            for (x, y) in high_order_estimate.iter().zip(low_order_estimate){
+                sq_err += (x.exp() - y.exp()).powi(2);
+            }
+            mean_err = sq_err.sqrt();
+            //println!("n = {}, mean_err = {}", n, mean_err);
+
+            if mean_err < tol1{
+                res = high_order_estimate.clone();
+            }
+
+            if n > 2049{
+                return Err(BayesFactorError);
+            }
+        }
+
+        return Ok(res);
     }
 }
  
