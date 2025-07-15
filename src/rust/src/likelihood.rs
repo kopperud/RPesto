@@ -90,6 +90,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
     
         let mut p = sol[0].clone();
 
+
         log_sf += p[1].ln();
         p[1] = 1.0;
             
@@ -112,7 +113,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
         let mut e: Vec<f64> = Vec::new();
 
-        if conditions.contains(&Condition::Survival){
+        if conditions.contains(&Condition::Survival) || conditions.contains(&Condition::MarginalSurvival){
             let ode = ExtinctionMultiState{
                 lambda: self.lambda.clone(),
                 mu: self.mu.clone(),
@@ -123,6 +124,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
             let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, EquationType::Probability).expect("could not calculate extinction probability");
             e.extend(w.last().unwrap());
         }
+
 
         let root_prior = vec![1.0 / (self.k as f64); self.k];
 
@@ -135,16 +137,26 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
                 x = x / ((1.0 - e[i]) * (1.0 - e[i]));
             }
 
+
             if conditions.contains(&Condition::RootSpeciation){
                 x = x / self.lambda[i];
             }
             pr += x;
         }
 
-
-
-
         lnl += pr.ln() + sf;
+
+        if conditions.contains(&Condition::MarginalSurvival){
+            let mut marginal_extinction_prob = 0.0;
+            for i in 0..self.k{
+                marginal_extinction_prob += root_prior[i] * e[i];
+            }
+
+            let marginal_survival_prob = 1.0 - marginal_extinction_prob;
+
+            let log_msp = marginal_survival_prob.ln();
+            lnl -= 2.0 * log_msp;
+        }
 
         return lnl;
     }

@@ -14,6 +14,7 @@ fit_bds(
   sd = 0.587,
   tol = 1e-06,
   condition_survival = TRUE,
+  condition_marginal_survival = FALSE,
   condition_root_speciation = TRUE,
   extinction_approximation = FALSE,
   verbose = FALSE
@@ -37,6 +38,8 @@ fit_bds(
 \item{tol}{the local error threshold in the numerical ODE solver (per delta_t time step)}
 
 \item{condition_survival}{whether or not to condition on the survival of the left and right lineages descending from the root (default TRUE)}
+
+\item{condition_marginal_survival}{whether or not to condition on the marginal survival (averaging extinction probabilities across rate categories before conditioning), (default FALSE)}
 
 \item{condition_root_speciation}{whether or not to condition on that there was a speciation event at the root node (default TRUE)}
 

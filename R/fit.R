@@ -9,6 +9,7 @@
 #' @param sd the spread parameter for the log-normal base distribution
 #' @param tol the local error threshold in the numerical ODE solver (per delta_t time step)
 #' @param condition_survival whether or not to condition on the survival of the left and right lineages descending from the root (default TRUE)
+#' @param condition_marginal_survival whether or not to condition on the marginal survival (averaging extinction probabilities across rate categories before conditioning), (default FALSE)
 #' @param condition_root_speciation whether or not to condition on that there was a speciation event at the root node (default TRUE)
 #' @param extinction_approximation whether or not to approximate the extinction probability calculations, by assuming that rate shift events are not allowed on extinct lineages (default FALSE)
 #'
@@ -24,6 +25,7 @@ fit_bds <- function(
         sd = 0.587,
         tol = 1e-6,
         condition_survival = TRUE,
+        condition_marginal_survival = FALSE,
         condition_root_speciation = TRUE,
         extinction_approximation = FALSE,
         verbose = FALSE
@@ -58,7 +60,7 @@ fit_bds <- function(
         if (verbose) print("fitting shift rate parameter")
         bds_opt <- stats::optim(
             par = c(0.005),
-            fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_classes, tol, FALSE, condition_survival, condition_root_speciation, extinction_approximation),
+            fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_classes, tol, FALSE, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation),
             lower = c(1e-8),
             upper = c(0.1),
             method = "Brent",
@@ -71,7 +73,7 @@ fit_bds <- function(
 
     # store D(t) as a cubic spline 
     if (verbose) print("calculating dense postorder")
-    phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol, TRUE, condition_survival, condition_root_speciation, extinction_approximation)
+    phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol, TRUE, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation)
 
     # calculate F(t)
     if (verbose) print("calculating F(t)")

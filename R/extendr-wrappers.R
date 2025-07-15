@@ -24,7 +24,7 @@ Phylogeny$print <- function() .Call(wrap__Phylogeny__print, self)
 
 Phylogeny$bd_likelihood <- function(lambda, mu, rho, tol, store, condition_survival, condition_root_speciation) .Call(wrap__Phylogeny__bd_likelihood, self, lambda, mu, rho, tol, store, condition_survival, condition_root_speciation)
 
-Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol, store, condition_survival, condition_root_speciation, extinction_approximation) .Call(wrap__Phylogeny__bds_likelihood, self, lambda_hat, mu_hat, eta, rho, sd, n, tol, store, condition_survival, condition_root_speciation, extinction_approximation)
+Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol, store, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation) .Call(wrap__Phylogeny__bds_likelihood, self, lambda_hat, mu_hat, eta, rho, sd, n, tol, store, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation)
 
 Phylogeny$bds_preorder <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__bds_preorder, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
 
