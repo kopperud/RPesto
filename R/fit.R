@@ -41,7 +41,7 @@ fit_bds <- function(
             par = c(0.1, 0.05),
             fn = function(x) phylogeny$bd_likelihood(x[1], x[2], sampling_fraction, tol, FALSE, condition_survival, condition_root_speciation),
             lower = c(0.00001, 0.00001),
-            upper = c(2.0, 2.0),
+            upper = c(10.0, 10.0),
             method = "L-BFGS-B",
             control = list(fnscale = -1),
             hessian = FALSE,

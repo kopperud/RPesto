@@ -66,6 +66,46 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
     return res;
 }
 
+use crate::branch_probability::*;
+
+/// @export
+#[extendr]
+fn branch_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, t: f64, tol: f64, extinction_approximation: bool) -> extendr_api::List{
+//fn extinction_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, sampling_probability: f64, t: f64, tol: f64, extinction_approximation: bool) -> extendr_api::List{
+
+    let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n, extinction_approximation);
+
+    let k = model.mu.len();
+
+    //let ode = ExtinctionMultiState{mu: model.mu, lambda: model.lambda, eta, extinction_approximation};
+    let ode = BranchProbabilityMultiState::new(model.lambda.clone(), model.mu.clone(), eta, extinction_approximation);
+
+    let mut u0 = vec![0.0; k*2];
+
+    for i in 0..k{
+        u0[i] = 1.0 - rho;
+        u0[k+i] = rho;
+    }
+        
+    let dense = true; // solve ODE with dense output
+    let n_steps_init = 4;
+
+    let t0 = 0.0;
+    let t1 = t;
+
+    let equation = EquationType::ProbabilityDensity;
+    let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, equation).expect("could not calculate branch probabiltiy E(t) and D(t) in likelihood function");
+
+
+    let n_times = times.len();
+
+    let m = RMatrix::new_matrix(n_times, 2*k, |r, c| sol[r][c]);
+
+    let res = list!(t = &times, probs = m);
+
+    return res;
+}
+
 #[derive(Debug)]
 #[extendr]
 /// @export
@@ -161,6 +201,7 @@ extendr_module! {
     mod RPesto;
     fn hello_world;
     fn extinction_probability; 
+    fn branch_probability_bds; 
     impl Phylogeny;
 }
 

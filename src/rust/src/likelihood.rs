@@ -86,7 +86,11 @@ impl Likelihood<BranchProbability> for ConstantBD{
         let t0 = child_time;
         let t1 = time;
 
-        let (_times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, EquationType::ProbabilityDensity).expect("could not calculate branch probability in likelihood for cbdp");
+        //let equation = EquationType::Probability;
+        let equation = EquationType::Any;
+        let (_times, sol) = ode
+            .solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, equation)
+            .expect("could not calculate branch probability in likelihood for cbdp");
     
         let mut p = sol[0].clone();
 
@@ -121,7 +125,9 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
                 extinction_approximation: self.extinction_approximation,
             };
             let u0 = vec![1.0 - self.rho; self.k];
-            let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, EquationType::Probability).expect("could not calculate extinction probability");
+            //let equation = EquationType::Probability;
+            let equation = EquationType::Any;
+            let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, equation).expect("could not calculate extinction probability");
             e.extend(w.last().unwrap());
         }
 

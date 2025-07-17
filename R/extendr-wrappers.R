@@ -16,6 +16,9 @@ hello_world <- function() .Call(wrap__hello_world)
 
 extinction_probability <- function(lambda, mu, t, tol) .Call(wrap__extinction_probability, lambda, mu, t, tol)
 
+#' @export
+branch_probability_bds <- function(lambda_hat, mu_hat, eta, rho, sd, n, t, tol, extinction_approximation) .Call(wrap__branch_probability_bds, lambda_hat, mu_hat, eta, rho, sd, n, t, tol, extinction_approximation)
+
 Phylogeny <- new.env(parent = emptyenv())
 
 Phylogeny$new <- function(newick) .Call(wrap__Phylogeny__new, newick)
