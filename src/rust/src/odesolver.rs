@@ -164,7 +164,7 @@ where
 
         let mut u = u0; 
         let mut t = t0;
-        let mut error_estimate: f64;
+        //let mut error_estimate: f64;
 
         let mut sol: Vec<Vec<f64>> = Vec::new();
         let mut times: Vec<f64> = Vec::new();
@@ -215,26 +215,21 @@ where
 
             self.gradient(&mut k7, &u6,  &(t + C7*delta_t));
 
-            // fourth and fifth-order solutions
-            error_estimate = 0.0;
 
-            // step control
-            //let mut sc = vec![0.0; n];
-            //
-            
+           
             let mut err = 0.0;
 
             for i in 0..n{
+                // fourth and fifth-order solutions
                 delta_four[i] = delta_t * (B1*k1[i]  + B2*k2[i]  + B3*k3[i]  + B4*k4[i]  + B5*k5[i]  + B6*k6[i] + B7*k7[i]);
                 delta_five[i] = delta_t * (A71*k1[i] + A72*k2[i] + A73*k3[i] + A74*k4[i] + A75*k5[i] + A76*k6[i]);
-                //error_estimate += f64::abs(delta_four[i] - delta_five[i]);
-                // step control
-                let sci = atol + u[i].abs().max((u[i] + delta_four[i]).abs()) * rtol;
-                error_estimate += (delta_four[i] - delta_five[i]).abs();
 
+                // see Hairer, Nørsett & Wanner (2008), Solving Ordinary Differential Equations I (3rd
+                // edition). Page 167 on automatic step size selection
+                let sci = atol + u[i].abs().max((u[i] + delta_four[i]).abs()) * rtol; // step
+                                                                                           // control)
                 err += ((delta_four[i] - delta_five[i]) / sci).powi(2);
             }
-            error_estimate = error_estimate / (n as f64);
             err = (err / (n as f64)).sqrt();
 
             // whether or not to accept solution
@@ -248,14 +243,8 @@ where
             }else{
                 if delta_t.abs() < 1e-12{
                     println!("aborting, |delta_t| is less than 1e-12 (it is {}). either the ODE error estimate is too large, or the solution is not valid (e.g., negative probability).", delta_t.abs());
-
-                    //println!("u = {:?}", u);
-                    //println!("delta_four = {:?}", delta_four);
-                    //println!("delta_five = {:?}", delta_five);
                     
                     return Err(SolverError);
-
-                    //panic!("panic here");
                 }
             }
 
@@ -273,7 +262,8 @@ where
 
             }
 
-
+            // never shrink or widen the step size
+            // too much per iteration
             let facmax = 1.2;
             let facmin = 0.8;
 
@@ -283,22 +273,20 @@ where
 
             let fac = 0.95;
 
+            // automatic updating o the step size according to Hairer et al. (2008), equation (4.13)
+            //
+            // the basic rationale is, if the error is too large, then shrink the step size. 
+            // If however is the error is much smaller than our set tolerance, then
+            // we can also increase the step size, and obtain solutions in fewer steps 
+            // while still remaining within our tolerance limits.
             delta_t = delta_t * (fac * 1.0 / err).powf(1.0/(q + 1.0)).max(facmin).min(facmax);
 
+            // independently of the automatic step size control,
+            // if the equation is not valid (for example negative probability or positive 
+            // log-probability, then decrease the step size anyway
             if !v{
                 delta_t *= 0.8;
-            }//else{
-            //  delta_t = delta_t * (1.0 / err).powf(1.0/(q + 1.0)).max(facmin).min(facmax);
-            //}
-           
-            /*
-            println!("t = {}", t);
-            println!("err = {}", err);
-            println!("delta_t = {}", delta_t);
-            println!("u = {:?}", u);
-            println!("delta_four = {:?}", delta_four);
-            println!("delta_five = {:?}", delta_five);
-            */
+            }
 
             c = go(&t, &t1, &delta_t);
         }
