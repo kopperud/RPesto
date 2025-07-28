@@ -17,7 +17,7 @@ hello_world <- function() .Call(wrap__hello_world)
 extinction_probability <- function(lambda, mu, t, tol) .Call(wrap__extinction_probability, lambda, mu, t, tol)
 
 #' @export
-branch_probability_bds <- function(lambda_hat, mu_hat, eta, rho, sd, n, t, tol, extinction_approximation) .Call(wrap__branch_probability_bds, lambda_hat, mu_hat, eta, rho, sd, n, t, tol, extinction_approximation)
+branch_probability_bds <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, t, tol, extinction_approximation) .Call(wrap__branch_probability_bds, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, t, tol, extinction_approximation)
 
 Phylogeny <- new.env(parent = emptyenv())
 
@@ -27,15 +27,15 @@ Phylogeny$print <- function() .Call(wrap__Phylogeny__print, self)
 
 Phylogeny$bd_likelihood <- function(lambda, mu, rho, tol, store, condition_survival, condition_root_speciation) .Call(wrap__Phylogeny__bd_likelihood, self, lambda, mu, rho, tol, store, condition_survival, condition_root_speciation)
 
-Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol, store, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation) .Call(wrap__Phylogeny__bds_likelihood, self, lambda_hat, mu_hat, eta, rho, sd, n, tol, store, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation)
+Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol, store, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation) .Call(wrap__Phylogeny__bds_likelihood, self, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol, store, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation)
 
-Phylogeny$bds_preorder <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__bds_preorder, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
+Phylogeny$bds_preorder <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol) .Call(wrap__Phylogeny__bds_preorder, self, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol)
 
-Phylogeny$branch_rates <- function(lambda_hat, mu_hat, eta, rho, sd, n) .Call(wrap__Phylogeny__branch_rates, self, lambda_hat, mu_hat, eta, rho, sd, n)
+Phylogeny$branch_rates <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu) .Call(wrap__Phylogeny__branch_rates, self, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu)
 
-Phylogeny$number_of_shifts <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__number_of_shifts, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
+Phylogeny$number_of_shifts <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol) .Call(wrap__Phylogeny__number_of_shifts, self, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol)
 
-Phylogeny$bayes_factors <- function(lambda_hat, mu_hat, eta, rho, sd, n, tol) .Call(wrap__Phylogeny__bayes_factors, self, lambda_hat, mu_hat, eta, rho, sd, n, tol)
+Phylogeny$bayes_factors <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol) .Call(wrap__Phylogeny__bayes_factors, self, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol)
 
 Phylogeny$write_newick <- function() .Call(wrap__Phylogeny__write_newick, self)
 

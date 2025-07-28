@@ -23,15 +23,15 @@ pub fn make_quantiles(location: f64, sigma: f64, n: usize) -> Vec<f64>{
     return quantiles;
 }
 
-pub fn rate_categories(lambda: f64, mu: f64, sd: f64, n: usize) -> (Vec<f64>, Vec<f64>){
-    let lambda_quantiles = make_quantiles(lambda.ln(), sd, n);
-    let mu_quantiles = make_quantiles(mu.ln(), sd, n);
+pub fn rate_categories(lambda: f64, mu: f64, sd: f64, n_lambda: usize, n_mu: usize) -> (Vec<f64>, Vec<f64>){
+    let lambda_quantiles = make_quantiles(lambda.ln(), sd, n_lambda);
+    let mu_quantiles = make_quantiles(mu.ln(), sd, n_mu);
 
     let mut lambdas = Vec::new();
     let mut mus = Vec::new();
 
-    for i in 0..n{
-        for j in 0..n{
+    for i in 0..n_lambda{
+        for j in 0..n_mu{
             lambdas.push(lambda_quantiles[i]);
             mus.push(mu_quantiles[j]);
         }

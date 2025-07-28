@@ -5,7 +5,8 @@
 #' @param lambda_hat the overall scale of the log-normal base distribution for the speciation rates. If not specified, the function will estimate it using ML
 #' @param mu_hat the overall scale of the log-normal base distribution for the extinction rates. If not specified, the function will estimate it using ML
 #' @param eta the shift rate parameter. If not specified, the function will estimate it using ML
-#' @param num_classes the number of rate class discretizations (n), such that rate categories is k = n^2
+#' @param num_speciation_classes the number of speciation rate class discretizations, such that rate categories is k = n_sp * n_mu
+#' @param num_extinction_classes the number of extinction rate class discretizations, such that rate categories is k = n_sp * n_mu
 #' @param sd the spread parameter for the log-normal base distribution
 #' @param tol the local error threshold in the numerical ODE solver (per delta_t time step)
 #' @param condition_survival whether or not to condition on the survival of the left and right lineages descending from the root (default TRUE)
@@ -21,7 +22,8 @@ fit_bds <- function(
         lambda_hat,
         mu_hat,
         eta,
-        num_classes = 6,
+        num_speciation_classes = 6,
+        num_extinction_classes = 6,
         sd = 0.587,
         tol = 1e-6,
         condition_survival = TRUE,
@@ -60,7 +62,7 @@ fit_bds <- function(
         if (verbose) print("fitting shift rate parameter")
         bds_opt <- stats::optim(
             par = c(0.005),
-            fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_classes, tol, FALSE, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation),
+            fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol, FALSE, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation),
             lower = c(1e-8),
             upper = c(0.1),
             method = "Brent",
@@ -73,23 +75,23 @@ fit_bds <- function(
 
     # store D(t) as a cubic spline 
     if (verbose) print("calculating dense postorder")
-    phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol, TRUE, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation)
+    phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol, TRUE, condition_survival, condition_marginal_survival, condition_root_speciation, extinction_approximation)
 
     # calculate F(t)
     if (verbose) print("calculating F(t)")
-    phylogeny$bds_preorder(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol);
+    phylogeny$bds_preorder(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol);
 
     ## calculate netdiv per branch
     if (verbose) print("calculating netdiv per branch")
-    phylogeny$branch_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes);
+    phylogeny$branch_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes);
 
     ## calculate no. shifts per branch
     if (verbose) print("calculating number of shifts")
-    phylogeny$number_of_shifts(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol);
+    phylogeny$number_of_shifts(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol);
 
     ## calculate Bayes factors per branch 
     if (verbose) print("calculating Bayes factors")
-    phylogeny$bayes_factors(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_classes, tol);
+    phylogeny$bayes_factors(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol);
 
     ## write newick string
     s <- phylogeny$write_newick()

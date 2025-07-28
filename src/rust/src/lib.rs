@@ -70,10 +70,10 @@ use crate::branch_probability::*;
 
 /// @export
 #[extendr]
-fn branch_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, t: f64, tol: f64, extinction_approximation: bool) -> extendr_api::List{
+fn branch_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, t: f64, tol: f64, extinction_approximation: bool) -> extendr_api::List{
 //fn extinction_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, sampling_probability: f64, t: f64, tol: f64, extinction_approximation: bool) -> extendr_api::List{
 
-    let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n, extinction_approximation);
+    let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, extinction_approximation);
 
     let k = model.mu.len();
 
@@ -140,8 +140,8 @@ impl Phylogeny {
         return lnl;
     }
 
-    pub fn bds_likelihood(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64, store: bool, condition_survival: bool, condition_marginal_survival: bool, condition_root_speciation: bool, extinction_approximation: bool) -> f64{
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n, extinction_approximation);
+    pub fn bds_likelihood(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64, store: bool, condition_survival: bool, condition_marginal_survival: bool, condition_root_speciation: bool, extinction_approximation: bool) -> f64{
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, extinction_approximation);
 
         let mut conditions: Vec<Condition> = Vec::new();
 
@@ -164,25 +164,25 @@ impl Phylogeny {
         return lnl;
     }
 
-    pub fn bds_preorder(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64 ) -> (){
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n, false);
+    pub fn bds_preorder(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64 ) -> (){
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
         model.preorder(&mut self.tree, tol);
     }
 
-    pub fn branch_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize) -> (){
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n, false);
+    pub fn branch_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize) -> (){
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
         model.net_diversification(&mut self.tree );
         model.speciation(&mut self.tree );
         model.extinction(&mut self.tree );
     }
 
-    pub fn number_of_shifts(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> (){
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n, false);
+    pub fn number_of_shifts(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64) -> (){
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
         model.number_of_shifts(&mut self.tree, tol);
     }
 
-    pub fn bayes_factors(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n: usize, tol: f64) -> (){
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n, false);
+    pub fn bayes_factors(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64) -> (){
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
         model.bayes_factors(&mut self.tree, tol);
     }
 

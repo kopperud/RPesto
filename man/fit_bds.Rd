@@ -10,7 +10,8 @@ fit_bds(
   lambda_hat,
   mu_hat,
   eta,
-  num_classes = 6,
+  num_speciation_classes = 6,
+  num_extinction_classes = 6,
   sd = 0.587,
   tol = 1e-06,
   condition_survival = TRUE,
@@ -31,7 +32,9 @@ fit_bds(
 
 \item{eta}{the shift rate parameter. If not specified, the function will estimate it using ML}
 
-\item{num_classes}{the number of rate class discretizations (n), such that rate categories is k = n^2}
+\item{num_speciation_classes}{the number of speciation rate class discretizations, such that rate categories is k = n_sp * n_mu}
+
+\item{num_extinction_classes}{the number of extinction rate class discretizations, such that rate categories is k = n_sp * n_mu}
 
 \item{sd}{the spread parameter for the log-normal base distribution}
 
