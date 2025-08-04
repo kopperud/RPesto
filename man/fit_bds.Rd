@@ -15,8 +15,8 @@ fit_bds(
   sd = 0.587,
   tol = 1e-06,
   condition_survival = TRUE,
-  condition_marginal_survival = FALSE,
   condition_root_speciation = TRUE,
+  condition_marginal = FALSE,
   extinction_approximation = FALSE,
   verbose = FALSE
 )
@@ -42,9 +42,9 @@ fit_bds(
 
 \item{condition_survival}{whether or not to condition on the survival of the left and right lineages descending from the root (default TRUE)}
 
-\item{condition_marginal_survival}{whether or not to condition on the marginal survival (averaging extinction probabilities across rate categories before conditioning), (default FALSE)}
-
 \item{condition_root_speciation}{whether or not to condition on that there was a speciation event at the root node (default TRUE)}
+
+\item{condition_marginal}{whether or condition using the marginal or per-category approach (default FALSE, i.e., to condition per rate category)}
 
 \item{extinction_approximation}{whether or not to approximate the extinction probability calculations, by assuming that rate shift events are not allowed on extinct lineages (default FALSE)}
 }

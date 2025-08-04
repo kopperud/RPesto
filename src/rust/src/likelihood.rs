@@ -12,13 +12,13 @@ use rayon::prelude::*;
 
 // the likelihood trait 
 pub trait Likelihood<T>{
-    fn likelihood( &self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, store: bool) -> f64;
+    fn likelihood( &self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, condition_marginal: bool, store: bool) -> f64;
     fn likelihood_po( &self, node: &mut Box<Node>, ode: &T, time: f64, tol: f64, store: bool) -> (Vec<f64>, f64);
 }
 
 // the likelihood implementation for constant-rate birth death model
 impl Likelihood<BranchProbability> for ConstantBD{
-    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, store: bool) -> f64{
+    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, _condition_marginal: bool, store: bool) -> f64{
         let height = treeheight(&tree);
 
         let time = height;
@@ -106,7 +106,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
 
 // the likelihood implementation for birth-death-shift model
 impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
-    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, store: bool) -> f64{
+    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, condition_marginal: bool, store: bool) -> f64{
         let height = treeheight(&tree);
 
         let time = height;
@@ -117,7 +117,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
         let mut e: Vec<f64> = Vec::new();
 
-        if conditions.contains(&Condition::Survival) || conditions.contains(&Condition::MarginalSurvival){
+        if conditions.contains(&Condition::Survival){
             let ode = ExtinctionMultiState{
                 lambda: self.lambda.clone(),
                 mu: self.mu.clone(),
@@ -139,12 +139,12 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         for i in 0..self.k{
             let mut x = root_prior[i] * p[self.k+i];
 
-            if conditions.contains(&Condition::Survival){
+            if !condition_marginal & conditions.contains(&Condition::Survival){
                 x = x / ((1.0 - e[i]) * (1.0 - e[i]));
             }
 
 
-            if conditions.contains(&Condition::RootSpeciation){
+            if !condition_marginal & conditions.contains(&Condition::RootSpeciation){
                 x = x / self.lambda[i];
             }
             pr += x;
@@ -152,7 +152,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
         lnl += pr.ln() + sf;
 
-        if conditions.contains(&Condition::MarginalSurvival){
+        if condition_marginal & conditions.contains(&Condition::Survival){
             let mut marginal_extinction_prob = 0.0;
             for i in 0..self.k{
                 marginal_extinction_prob += root_prior[i] * e[i];
@@ -162,6 +162,16 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
             let log_msp = marginal_survival_prob.ln();
             lnl -= 2.0 * log_msp;
+        }
+
+        if condition_marginal & conditions.contains(&Condition::RootSpeciation){
+            let mut marginal_speciation_prob = 0.0;
+            for i in 0..self.k{
+                marginal_speciation_prob += root_prior[i] * self.lambda[i];
+            }
+
+            let log_mspecprob = marginal_speciation_prob.ln();
+            lnl -= log_mspecprob;
         }
 
         return lnl;

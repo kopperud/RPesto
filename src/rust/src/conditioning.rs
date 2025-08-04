@@ -1,7 +1,12 @@
 #[derive(PartialEq)]
 pub enum Condition{
     Survival,
-    MarginalSurvival,
     RootSpeciation,
+}
+
+#[derive(PartialEq)]
+pub enum ConditionType{
+    Joint,
+    Marginal
 }
 

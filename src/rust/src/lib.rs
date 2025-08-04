@@ -136,30 +136,26 @@ impl Phylogeny {
             conditions.push(Condition::RootSpeciation);
         }
 
-        let lnl = model.likelihood(&mut self.tree, conditions, tol, store);
+        // this does not matter for cbdp
+        let condition_marginal = false; 
+
+        let lnl = model.likelihood(&mut self.tree, conditions, tol, condition_marginal, store);
         return lnl;
     }
 
-    pub fn bds_likelihood(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64, store: bool, condition_survival: bool, condition_marginal_survival: bool, condition_root_speciation: bool, extinction_approximation: bool) -> f64{
+    pub fn bds_likelihood(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64, store: bool, condition_survival: bool, condition_root_speciation: bool, condition_marginal: bool, extinction_approximation: bool) -> f64{
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, extinction_approximation);
 
         let mut conditions: Vec<Condition> = Vec::new();
 
-        if condition_survival & condition_marginal_survival{
-            panic!("cannot condition on (per-category) survival and marginal survival");
-        }
-
         if condition_survival{
             conditions.push(Condition::Survival);
-        }
-        if condition_marginal_survival{
-            conditions.push(Condition::MarginalSurvival);
         }
         if condition_root_speciation{
             conditions.push(Condition::RootSpeciation);
         }
 
-        let lnl = model.likelihood(&mut self.tree, conditions, tol, store);
+        let lnl = model.likelihood(&mut self.tree, conditions, tol, condition_marginal, store);
 
         return lnl;
     }
