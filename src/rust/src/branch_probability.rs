@@ -50,7 +50,7 @@ impl Gradient for BranchProbabilityMultiState{
         let r = self.eta / (k as f64 - 1.0);
 
         let sum_E: f64 = u[0..k].iter().sum();
-        let sum_D: f64 = u[(k+1)..(2*k)].iter().sum();
+        let sum_D: f64 = u[(k)..(2*k)].iter().sum();
 
         // E(t)
         if self.extinction_approximation{
