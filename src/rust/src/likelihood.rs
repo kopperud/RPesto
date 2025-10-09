@@ -56,7 +56,6 @@ impl Likelihood<BranchProbability> for ConstantBD{
             .children
             .iter_mut()
             .par_bridge()
-            //.children.par_iter()
             .map(|child| {
                 let x = self.likelihood_po(child, ode, child_time, tol, store);
                 return x;
@@ -125,7 +124,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
                 extinction_approximation: self.extinction_approximation,
             };
             let u0 = vec![1.0 - self.rho; self.k];
-            //let equation = EquationType::Probability;
+
             let equation = EquationType::Any;
             let (_, w) = ode.solve_dopri45(u0, 0.0, time, false, 5, tol, equation).expect("could not calculate extinction probability");
             e.extend(w.last().unwrap());

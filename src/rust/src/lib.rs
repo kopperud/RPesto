@@ -2,6 +2,7 @@
 
 
 use extendr_api::prelude::*;
+use std::collections::HashMap;
 
 use crate::parser::*;
 use crate::extinction::*;
@@ -14,6 +15,7 @@ use crate::branchrates::*;
 use crate::writenewick::*;
 use crate::number_of_shifts::*;
 use crate::bayes_factor::*;
+use crate::tip_rates::*;
 use crate::conditioning::*;
 
 pub mod spline;
@@ -34,6 +36,7 @@ pub mod models;
 pub mod writenewick;
 pub mod number_of_shifts;
 pub mod bayes_factor;
+pub mod tip_rates;
 pub mod conditioning;
 
 /// Return string `"Hello world!"` to R.
@@ -180,6 +183,21 @@ impl Phylogeny {
     pub fn bayes_factors(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64) -> (){
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
         model.bayes_factors(&mut self.tree, tol);
+    }
+
+    pub fn tip_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize) -> Vec<f64>{
+        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
+
+        let tr = model.tip_rates(&mut self.tree);
+
+        let mut species = Vec::new();
+        let mut rates= Vec::new();
+        for (key, value) in tr{
+            species.push(key); 
+            rates.push(value);
+        }
+
+        return rates;
     }
 
     pub fn write_newick(&mut self) -> String{

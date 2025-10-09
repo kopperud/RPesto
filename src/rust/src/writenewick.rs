@@ -45,6 +45,7 @@ impl WriteNewick for Node{
         add_variable(self.delta_mu, &mut items, "delta_mu");
         add_variable(self.number_of_shifts, &mut items, "nshift");
         add_variable(self.bayes_factor, &mut items, "shift_bf");
+        //add_variable(self.tip_netdiv, &mut items, "tip_netdiv");
 
         if !items.is_empty(){
             let joined = items.join(",");

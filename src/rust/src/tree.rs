@@ -33,6 +33,7 @@ pub struct Node {
     pub delta_mu: Option<f64>,
     pub number_of_shifts: Option<f64>,
     pub bayes_factor: Option<f64>,
+    pub tip_netdiv: Option<f64>,
 }
 
 
@@ -55,6 +56,7 @@ impl Node {
             delta_mu: None,
             number_of_shifts: None,
             bayes_factor: None,
+            tip_netdiv: None,
         }
     }
 

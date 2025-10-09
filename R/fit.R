@@ -93,6 +93,10 @@ fit_bds <- function(
     if (verbose) print("calculating Bayes factors")
     phylogeny$bayes_factors(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol);
 
+    ## calculate tip rates
+    if (verbose) print("calculating tip rates")
+    tip_rates <- phylogeny$tip_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes);
+
     ## write newick string
     s <- phylogeny$write_newick()
 
@@ -106,7 +110,8 @@ fit_bds <- function(
                             "mu_hat" = mu_hat,
                             "eta" = eta
                             ),
-                "td" = tree
+                "td" = tree,
+                "tip_rates" = tip_rates
                 )
 
     return(res)
