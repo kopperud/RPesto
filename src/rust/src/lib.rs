@@ -185,19 +185,15 @@ impl Phylogeny {
         model.bayes_factors(&mut self.tree, tol);
     }
 
-    pub fn tip_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize) -> Vec<f64>{
+    pub fn tip_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize) -> Dataframe<TipRateRow>{
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
 
-        let tr = model.tip_rates(&mut self.tree);
+        let items = model.tip_rates(&mut self.tree);
 
-        let mut species = Vec::new();
-        let mut rates= Vec::new();
-        for (key, value) in tr{
-            species.push(key); 
-            rates.push(value);
-        }
+        let df = items.into_dataframe()
+            .expect("expected to return a data frame");
 
-        return rates;
+        return df;
     }
 
     pub fn write_newick(&mut self) -> String{
