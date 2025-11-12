@@ -5,3 +5,4 @@
 ^src/Makevars\.win$
 data/primates.png
 ^LICENSE\.md$
+readme.md
