@@ -204,6 +204,20 @@ impl Phylogeny {
 
 }
 
+/*
+pub use crate::categories::{lognormal_quantile, lognormal_quantile2};
+
+#[extendr]
+pub fn lnq(x: f64, location: f64, sigma: f64)->f64{
+    lognormal_quantile(x, location, sigma)
+}
+
+#[extendr]
+pub fn lnq2(x: f64, location: f64, sigma: f64)->f64{
+    lognormal_quantile2(x, location, sigma)
+}
+*/
+
 
 // Macro to generate exports.
 // This ensures exported functions are registered with R.
@@ -213,6 +227,8 @@ extendr_module! {
     fn hello_world;
     fn extinction_probability; 
     fn branch_probability_bds; 
+    //fn lnq;
+    //fn lnq2;
     impl Phylogeny;
 }
 

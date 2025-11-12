@@ -1,30 +1,30 @@
 use core::f64;
 
 //use statrs::distribution::{LogNormal,ContinuousCDF};
-use crate::erf::erf_inv;
+use crate::erf::erfc_inv;
 
+use extendr_api::prelude::*;
 
-pub fn lognormal_probability(x: f64, location: f64, sigma: f64) -> f64{
-    let a = 1.0 / (x * sigma * (2.0 * f64::consts::PI).sqrt());
-
-    let b = (-0.5 * (x.ln() - location).powi(2) / (sigma * sigma)).exp();
-
-    let p = a * b;
-
-    p
+pub fn lognormal_quantile(p: f64, location: f64, sigma: f64) -> f64{
+    if p == 0.0 {
+        0.0
+    } else if p < 1.0 {
+        (location - (sigma * f64::consts::SQRT_2 * erfc_inv(2.0 * p))).exp()
+    } else if p == 1.0 {
+        f64::INFINITY
+    } else {
+        panic!("p must be within [0.0, 1.0]");
+    }
 }
 
 
+/*
 pub fn lognormal_quantile(x: f64, location: f64, sigma: f64) -> f64{
-    let p = lognormal_probability(x, location, sigma);
-
-    let a = (2.0 * sigma * sigma).sqrt();
-    let b = erf_inv(2.0 * p - 1.0);
-
-    let q = (location + a * b).exp();
-
-    q
+    let d = LogNormal::new(location, sigma).unwrap();
+    let q = d.inverse_cdf(x);
+    return q;
 }
+*/
 
 
 /*
@@ -52,14 +52,6 @@ mod tests {
 }
 */
 
-
-/*
-pub fn lognormal_quantile(x: f64, location: f64, sigma: f64) -> f64{
-    let d = LogNormal::new(location, sigma).unwrap();
-    let q = d.inverse_cdf(x);
-    return q;
-}
-*/
 
 
 pub fn make_quantiles(location: f64, sigma: f64, n: usize) -> Vec<f64>{
