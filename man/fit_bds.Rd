@@ -51,3 +51,10 @@ fit_bds(
 \description{
 fits the bds model
 }
+\examples{
+data("primates")
+
+analysis <- fit_bds(primates, sampling_fraction = 0.6)
+
+
+}

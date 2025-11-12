@@ -14,6 +14,11 @@
 #' @param condition_marginal whether or condition using the marginal or per-category approach (default FALSE, i.e., to condition per rate category)
 #' @param extinction_approximation whether or not to approximate the extinction probability calculations, by assuming that rate shift events are not allowed on extinct lineages (default FALSE)
 #'
+#' @examples
+#' data("primates")
+#' 
+#' analysis <- fit_bds(primates, sampling_fraction = 0.6)
+#'
 #'
 #' @export
 fit_bds <- function(
