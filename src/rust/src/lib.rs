@@ -38,6 +38,7 @@ pub mod number_of_shifts;
 pub mod bayes_factor;
 pub mod tip_rates;
 pub mod conditioning;
+pub mod erf;
 
 /// Return string `"Hello world!"` to R.
 /// @export
