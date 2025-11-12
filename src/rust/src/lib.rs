@@ -72,7 +72,6 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
 
 use crate::branch_probability::*;
 
-/// @export
 #[extendr]
 fn branch_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, t: f64, tol: f64, extinction_approximation: bool) -> extendr_api::List{
 //fn extinction_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, sampling_probability: f64, t: f64, tol: f64, extinction_approximation: bool) -> extendr_api::List{
@@ -117,6 +116,7 @@ struct Phylogeny {
     pub tree: Box<Node>,
 }
 
+/// @export
 #[extendr]
 impl Phylogeny {
     fn new(newick: String) -> Self {
