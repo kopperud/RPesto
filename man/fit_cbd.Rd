@@ -10,7 +10,6 @@ fit_cbd(
   tol = 1e-06,
   condition_survival = TRUE,
   condition_root_speciation = TRUE,
-  extinction_approximation = FALSE,
   verbose = FALSE
 )
 }
@@ -24,6 +23,8 @@ fit_cbd(
 \item{condition_survival}{whether or not to condition on the survival of the left and right lineages descending from the root (default TRUE)}
 
 \item{condition_root_speciation}{whether or not to condition on that there was a speciation event at the root node (default TRUE)}
+
+\item{verbose}{whether or not to print more information}
 }
 \description{
 fits the constant-rate birth-death model

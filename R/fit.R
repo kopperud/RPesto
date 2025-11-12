@@ -13,6 +13,7 @@
 #' @param condition_root_speciation whether or not to condition on that there was a speciation event at the root node (default TRUE)
 #' @param condition_marginal whether or condition using the marginal or per-category approach (default FALSE, i.e., to condition per rate category)
 #' @param extinction_approximation whether or not to approximate the extinction probability calculations, by assuming that rate shift events are not allowed on extinct lineages (default FALSE)
+#' @param verbose whether or not to print more information 
 #'
 #' @examples
 #' data("primates")
@@ -130,6 +131,7 @@ fit_bds <- function(
 #' @param tol the local error threshold in the numerical ODE solver (per delta_t time step)
 #' @param condition_survival whether or not to condition on the survival of the left and right lineages descending from the root (default TRUE)
 #' @param condition_root_speciation whether or not to condition on that there was a speciation event at the root node (default TRUE)
+#' @param verbose whether or not to print more information 
 #'
 #'
 #' @export
@@ -139,7 +141,6 @@ fit_cbd <- function(
         tol = 1e-6,
         condition_survival = TRUE,
         condition_root_speciation = TRUE,
-        extinction_approximation = FALSE,
         verbose = FALSE
     ){
     phy$node.label <- NULL

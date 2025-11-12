@@ -16,9 +16,18 @@ hello_world <- function() .Call(wrap__hello_world)
 
 extinction_probability <- function(lambda, mu, t, tol) .Call(wrap__extinction_probability, lambda, mu, t, tol)
 
-#' @export
 branch_probability_bds <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, t, tol, extinction_approximation) .Call(wrap__branch_probability_bds, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, t, tol, extinction_approximation)
 
+#' Phylogeny constructor
+#'
+#' @usage Phylogeny(newick)
+#' @description Constructs a phylogeny that lives in the "rust" part of the program
+#' @param newick a newick string
+#'
+#' @examples
+#' Phylogeny$new("((A:0.5,B:0.5):0.5,C:1.0);")
+#'
+#' @export
 Phylogeny <- new.env(parent = emptyenv())
 
 Phylogeny$new <- function(newick) .Call(wrap__Phylogeny__new, newick)
@@ -41,6 +50,8 @@ Phylogeny$tip_rates <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu
 
 Phylogeny$write_newick <- function() .Call(wrap__Phylogeny__write_newick, self)
 
+#' @rdname Phylogeny
+#' @usage NULL
 #' @export
 `$.Phylogeny` <- function (self, name) { func <- Phylogeny[[name]]; environment(func) <- environment(); func }
 

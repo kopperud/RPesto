@@ -3,7 +3,7 @@ use core::f64;
 //use statrs::distribution::{LogNormal,ContinuousCDF};
 use crate::erf::erfc_inv;
 
-use extendr_api::prelude::*;
+//use extendr_api::prelude::*;
 
 pub fn lognormal_quantile(p: f64, location: f64, sigma: f64) -> f64{
     if p == 0.0 {

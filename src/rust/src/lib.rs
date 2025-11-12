@@ -2,7 +2,7 @@
 
 
 use extendr_api::prelude::*;
-use std::collections::HashMap;
+//use std::collections::HashMap;
 
 use crate::parser::*;
 use crate::extinction::*;
@@ -116,6 +116,15 @@ struct Phylogeny {
     pub tree: Box<Node>,
 }
 
+/// Phylogeny constructor
+///
+/// @usage Phylogeny(newick)
+/// @description Constructs a phylogeny that lives in the "rust" part of the program
+/// @param newick a newick string
+///
+/// @examples
+/// Phylogeny$new("((A:0.5,B:0.5):0.5,C:1.0);")
+///
 /// @export
 #[extendr]
 impl Phylogeny {

@@ -47,6 +47,8 @@ fit_bds(
 \item{condition_marginal}{whether or condition using the marginal or per-category approach (default FALSE, i.e., to condition per rate category)}
 
 \item{extinction_approximation}{whether or not to approximate the extinction probability calculations, by assuming that rate shift events are not allowed on extinct lineages (default FALSE)}
+
+\item{verbose}{whether or not to print more information}
 }
 \description{
 fits the bds model

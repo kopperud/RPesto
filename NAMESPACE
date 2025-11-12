@@ -2,7 +2,7 @@
 
 S3method("$",Phylogeny)
 S3method("[[",Phylogeny)
-export(branch_probability_bds)
+export(Phylogeny)
 export(fit_bds)
 export(fit_cbd)
 export(hello_world)
