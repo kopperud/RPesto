@@ -7,3 +7,4 @@ data/primates.png
 ^LICENSE\.md$
 readme.md
 src/rust/.cargo
+.github
