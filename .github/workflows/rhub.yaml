@@ -33,6 +33,7 @@ jobs:
 
     steps:
     # NO NEED TO CHECKOUT HERE
+    - run: (cd src/rust/ ; sh vendor.sh)
     - uses: r-hub/actions/setup@v1
       with:
         config: ${{ github.event.inputs.config }}
