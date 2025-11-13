@@ -92,6 +92,9 @@ jobs:
         with:
           job-config: ${{ matrix.config.job-config }}
           token: ${{ secrets.RHUB_TOKEN }}
+      - run: ls -lh ${GITHUB_WORKSPACE}
+      - run: ls -lh /home/runner/work/RPesto
+      - run: (cd /home/runner/work/RPesto/RPesto/src/rust/ ; sh vendor.sh)
       - uses: r-hub/actions/run-check@v1
         with:
           job-config: ${{ matrix.config.job-config }}
