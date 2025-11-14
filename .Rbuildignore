@@ -9,3 +9,4 @@ readme.md
 src/rust/.cargo
 .github
 ^cran-comments\.md$
+^CRAN-SUBMISSION$
