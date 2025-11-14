@@ -9,23 +9,29 @@ use crate::conditioning::*;
 
 use rayon::iter::ParallelIterator;
 use rayon::prelude::*;
+use rayon::{ThreadPool};
 
 // the likelihood trait 
 pub trait Likelihood<T>{
-    fn likelihood( &self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, condition_marginal: bool, store: bool) -> f64;
-    fn likelihood_po( &self, node: &mut Box<Node>, ode: &T, time: f64, tol: f64, store: bool) -> (Vec<f64>, f64);
+    fn likelihood( &self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, condition_marginal: bool, store: bool, numthreads: usize) -> f64;
+    fn likelihood_po( &self, node: &mut Box<Node>, ode: &T, time: f64, tol: f64, store: bool, pool: &ThreadPool) -> (Vec<f64>, f64);
 }
 
 // the likelihood implementation for constant-rate birth death model
 impl Likelihood<BranchProbability> for ConstantBD{
-    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, _condition_marginal: bool, store: bool) -> f64{
+    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, _condition_marginal: bool, store: bool, numthreads: usize) -> f64{
         let height = treeheight(&tree);
 
         let time = height;
 
         let ode = BranchProbability::new(self.lambda, self.mu);
 
-        let (u, sf) = self.likelihood_po(tree, &ode, time, tol, store);
+        let pool = rayon::ThreadPoolBuilder::new()
+            .num_threads(numthreads)
+            .build()
+            .expect("could not start thread pool");
+
+        let (u, sf) = self.likelihood_po(tree, &ode, time, tol, store, &pool);
         let mut p = u[0];
 
         if conditions.contains(&Condition::Survival){
@@ -45,7 +51,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
         return lnl;
     }
 
-    fn likelihood_po(&self, node: &mut Box<Node>, ode: &BranchProbability, time: f64, tol: f64, store: bool) -> (Vec<f64>, f64){
+    fn likelihood_po(&self, node: &mut Box<Node>, ode: &BranchProbability, time: f64, tol: f64, store: bool, pool: &ThreadPool) -> (Vec<f64>, f64){
 
         let mut u = vec![0.0, 1.0];
         let mut log_sf = 0.0;
@@ -57,7 +63,7 @@ impl Likelihood<BranchProbability> for ConstantBD{
             .iter_mut()
             .par_bridge()
             .map(|child| {
-                let x = self.likelihood_po(child, ode, child_time, tol, store);
+                let x = self.likelihood_po(child, ode, child_time, tol, store, &pool);
                 return x;
             })
         .collect();
