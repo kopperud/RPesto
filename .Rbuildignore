@@ -8,3 +8,4 @@ data/primates.png
 readme.md
 src/rust/.cargo
 .github
+^cran-comments\.md$

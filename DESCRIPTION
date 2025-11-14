@@ -4,7 +4,7 @@ Version: 0.1.4
 Authors@R: 
     c(person("Bj\u00F8rn Tore", "Kopperud", role = c("aut", "cre"), email = "kopperud@protonmail.com"),
       person("Sebastian", "H\u00F6hna", role = c("aut")))
-Description: This package can fit the birth-death-shift model for phylogenetic trees. It leverages belief propagation techniques to calculate branch-specific diversification rates, see Kopperud & H\u00F6hna (2025) <doi:10.1093/sysbio/syaf041>.
+Description: This package can fit the birth-death-shift model for phylogenetic trees. It leverages belief propagation techniques to calculate branch-specific diversification rates, see Kopperud & Hoehna (2025) <doi:10.1093/sysbio/syaf041>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

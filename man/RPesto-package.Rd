@@ -6,7 +6,7 @@
 \alias{RPesto-package}
 \title{RPesto: Phylogenetic Estimation of Shifts in the Tempo of Origination (in R)}
 \description{
-This package can estimate branch-specific diversification rates fast and efficiently.
+This package can fit the birth-death-shift model for phylogenetic trees. It leverages belief propagation techniques to calculate branch-specific diversification rates, see Kopperud & Hoehna (2025) \doi{10.1093/sysbio/syaf041}.
 }
 \section{References}{
 

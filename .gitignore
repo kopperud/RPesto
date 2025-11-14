@@ -3,3 +3,4 @@ src/Makevars
 src/Makevars.win
 src/rust/vendor.tar.xz
 src/rust/vendor-config.toml
+**/**.swp
