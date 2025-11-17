@@ -18,7 +18,11 @@ Phylogeny(newick)
 Constructs a phylogeny that lives in the "rust" part of the program
 }
 \examples{
-Phylogeny$new("((A:0.5,B:0.5):0.5,C:1.0);")
+phy <- Phylogeny$new("((A:0.5,B:0.5):0.5,C:1.0);")
+
+phy$print()
+
+phy$write_newick()
 
 }
 \keyword{datasets}

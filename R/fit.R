@@ -14,11 +14,12 @@
 #' @param condition_marginal whether or condition using the marginal or per-category approach (default FALSE, i.e., to condition per rate category)
 #' @param extinction_approximation whether or not to approximate the extinction probability calculations, by assuming that rate shift events are not allowed on extinct lineages (default FALSE)
 #' @param verbose whether or not to print more information 
+#' @param numthreads how many threads to use in likelihood calculation. If 0, then the program uses all available cores
 #'
 #' @examples
 #' data("primates")
 #' 
-#' analysis <- fit_bds(primates, sampling_fraction = 0.6)
+#' analysis <- fit_bds(primates, sampling_fraction = 0.6, numthreads = 2)
 #'
 #'
 #' @export
@@ -36,7 +37,8 @@ fit_bds <- function(
         condition_root_speciation = TRUE,
         condition_marginal = FALSE,
         extinction_approximation = FALSE,
-        verbose = FALSE
+        verbose = FALSE,
+        numthreads = 0
     ){
     phy$node.label <- NULL
     newick_string <- ape::write.tree(phy)
@@ -68,7 +70,7 @@ fit_bds <- function(
         if (verbose) print("fitting shift rate parameter")
         bds_opt <- stats::optim(
             par = c(0.005),
-            fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol, FALSE, condition_survival, condition_root_speciation, condition_marginal, extinction_approximation),
+            fn = function(x) phylogeny$bds_likelihood(lambda_hat, mu_hat, x[1], sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol, FALSE, condition_survival, condition_root_speciation, condition_marginal, extinction_approximation, numthreads),
             lower = c(1e-8),
             upper = c(0.1),
             method = "Brent",
@@ -81,7 +83,7 @@ fit_bds <- function(
 
     # store D(t) as a cubic spline 
     if (verbose) print("calculating dense postorder")
-    phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol, TRUE, condition_survival, condition_root_speciation, condition_marginal, extinction_approximation)
+    phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol, TRUE, condition_survival, condition_root_speciation, condition_marginal, extinction_approximation, numthreads)
 
     # calculate F(t)
     if (verbose) print("calculating F(t)")

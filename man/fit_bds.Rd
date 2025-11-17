@@ -18,7 +18,8 @@ fit_bds(
   condition_root_speciation = TRUE,
   condition_marginal = FALSE,
   extinction_approximation = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  numthreads = 0
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ fit_bds(
 \item{extinction_approximation}{whether or not to approximate the extinction probability calculations, by assuming that rate shift events are not allowed on extinct lineages (default FALSE)}
 
 \item{verbose}{whether or not to print more information}
+
+\item{numthreads}{how many threads to use in likelihood calculation. If 0, then the program uses all available cores}
 }
 \description{
 fits the bds model
@@ -56,7 +59,7 @@ fits the bds model
 \examples{
 data("primates")
 
-analysis <- fit_bds(primates, sampling_fraction = 0.6)
+analysis <- fit_bds(primates, sampling_fraction = 0.6, numthreads = 2)
 
 
 }

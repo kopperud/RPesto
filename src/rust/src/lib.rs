@@ -123,7 +123,11 @@ struct Phylogeny {
 /// @param newick a newick string
 ///
 /// @examples
-/// Phylogeny$new("((A:0.5,B:0.5):0.5,C:1.0);")
+/// phy <- Phylogeny$new("((A:0.5,B:0.5):0.5,C:1.0);")
+///
+/// phy$print()
+///
+/// phy$write_newick()
 ///
 /// @export
 #[extendr]
@@ -152,11 +156,14 @@ impl Phylogeny {
         // this does not matter for cbdp
         let condition_marginal = false; 
 
-        let lnl = model.likelihood(&mut self.tree, conditions, tol, condition_marginal, store);
+        // just do single threaded
+        let numthreads = 1;
+
+        let lnl = model.likelihood(&mut self.tree, conditions, tol, condition_marginal, store, numthreads);
         return lnl;
     }
 
-    pub fn bds_likelihood(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64, store: bool, condition_survival: bool, condition_root_speciation: bool, condition_marginal: bool, extinction_approximation: bool) -> f64{
+    pub fn bds_likelihood(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64, store: bool, condition_survival: bool, condition_root_speciation: bool, condition_marginal: bool, extinction_approximation: bool, numthreads: usize) -> f64{
         let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, extinction_approximation);
 
         let mut conditions: Vec<Condition> = Vec::new();
@@ -168,7 +175,7 @@ impl Phylogeny {
             conditions.push(Condition::RootSpeciation);
         }
 
-        let lnl = model.likelihood(&mut self.tree, conditions, tol, condition_marginal, store);
+        let lnl = model.likelihood(&mut self.tree, conditions, tol, condition_marginal, store, numthreads);
 
         return lnl;
     }

@@ -19,7 +19,12 @@ pub trait Likelihood<T>{
 
 // the likelihood implementation for constant-rate birth death model
 impl Likelihood<BranchProbability> for ConstantBD{
-    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, _condition_marginal: bool, store: bool, numthreads: usize) -> f64{
+    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, _condition_marginal: bool, store: bool, mut numthreads: usize) -> f64{
+        
+        if numthreads == 0{
+            numthreads = rayon::current_num_threads();
+        }
+
         let height = treeheight(&tree);
 
         let time = height;
@@ -58,15 +63,17 @@ impl Likelihood<BranchProbability> for ConstantBD{
 
         let child_time = time - node.length;
 
-        let r: Vec<(Vec<f64>, f64)> = node
-            .children
-            .iter_mut()
-            .par_bridge()
-            .map(|child| {
-                let x = self.likelihood_po(child, ode, child_time, tol, store, &pool);
-                return x;
-            })
-        .collect();
+        let r: Vec<(Vec<f64>, f64)> = pool
+            .install(
+                || {node.children
+                    .iter_mut()
+                    .par_bridge()
+                    .map( |child| {
+                        let x = self.likelihood_po(child, ode, child_time, tol, store, &pool);
+                        return x;
+                        })
+                    .collect()
+                    });
 
         for (child_u, child_sf) in r.iter(){
             u[0] = child_u[0];
@@ -111,14 +118,24 @@ impl Likelihood<BranchProbability> for ConstantBD{
 
 // the likelihood implementation for birth-death-shift model
 impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
-    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, condition_marginal: bool, store: bool) -> f64{
+    fn likelihood(&self, tree: &mut Box<Node>, conditions: Vec<Condition>, tol: f64, condition_marginal: bool, store: bool, mut numthreads: usize) -> f64{
+
+        if numthreads == 0{
+            numthreads = rayon::current_num_threads();
+        }
+
+        let pool = rayon::ThreadPoolBuilder::new()
+            .num_threads(numthreads)
+            .build()
+            .expect("could not start thread pool");
+
         let height = treeheight(&tree);
 
         let time = height;
 
         let ode = BranchProbabilityMultiState::new(self.lambda.clone(), self.mu.clone(), self.eta, self.extinction_approximation);
 
-        let (p, sf) = self.likelihood_po(tree, &ode, time, tol, store);
+        let (p, sf) = self.likelihood_po(tree, &ode, time, tol, store, &pool);
 
         let mut e: Vec<f64> = Vec::new();
 
@@ -182,7 +199,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
         return lnl;
     }
 
-    fn likelihood_po(&self, node: &mut Box<Node>, ode: &BranchProbabilityMultiState, time: f64, tol: f64, store: bool) -> (Vec<f64>, f64){
+    fn likelihood_po(&self, node: &mut Box<Node>, ode: &BranchProbabilityMultiState, time: f64, tol: f64, store: bool, pool: &ThreadPool) -> (Vec<f64>, f64){
 
         let mut u = vec![0.0; self.k];
         let b = vec![1.0; self.k];
@@ -192,15 +209,17 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD{
 
         let child_time = time - node.length;
 
-        let r: Vec<(Vec<f64>, f64)> = node
-            .children
-            .iter_mut()
-            .par_bridge()
-            .map(|child| {
-                let x = self.likelihood_po(child, ode, child_time, tol, store);
-                return x;
-            })
-        .collect();
+        let r: Vec<(Vec<f64>, f64)> = pool
+            .install(
+                || {node.children
+                    .iter_mut()
+                    .par_bridge()
+                    .map( |child| {
+                        let x = self.likelihood_po(child, ode, child_time, tol, store, &pool);
+                        return x;
+                        })
+                    .collect()
+                    });
 
         for (child_u, child_sf) in r.iter(){
 

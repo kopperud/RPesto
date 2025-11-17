@@ -25,7 +25,11 @@ branch_probability_bds <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n
 #' @param newick a newick string
 #'
 #' @examples
-#' Phylogeny$new("((A:0.5,B:0.5):0.5,C:1.0);")
+#' phy <- Phylogeny$new("((A:0.5,B:0.5):0.5,C:1.0);")
+#'
+#' phy$print()
+#'
+#' phy$write_newick()
 #'
 #' @export
 Phylogeny <- new.env(parent = emptyenv())
@@ -36,7 +40,7 @@ Phylogeny$print <- function() .Call(wrap__Phylogeny__print, self)
 
 Phylogeny$bd_likelihood <- function(lambda, mu, rho, tol, store, condition_survival, condition_root_speciation) .Call(wrap__Phylogeny__bd_likelihood, self, lambda, mu, rho, tol, store, condition_survival, condition_root_speciation)
 
-Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol, store, condition_survival, condition_root_speciation, condition_marginal, extinction_approximation) .Call(wrap__Phylogeny__bds_likelihood, self, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol, store, condition_survival, condition_root_speciation, condition_marginal, extinction_approximation)
+Phylogeny$bds_likelihood <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol, store, condition_survival, condition_root_speciation, condition_marginal, extinction_approximation, numthreads) .Call(wrap__Phylogeny__bds_likelihood, self, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol, store, condition_survival, condition_root_speciation, condition_marginal, extinction_approximation, numthreads)
 
 Phylogeny$bds_preorder <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol) .Call(wrap__Phylogeny__bds_preorder, self, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, tol)
 
