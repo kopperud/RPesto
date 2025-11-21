@@ -26,6 +26,9 @@ fit_cbd(
 
 \item{verbose}{whether or not to print more information}
 }
+\value{
+a list with the maximum-likelihood parameter estimates of the speciation rate and the extinction rate
+}
 \description{
 fits the constant-rate birth-death model
 }

@@ -16,6 +16,8 @@
 #' @param verbose whether or not to print more information 
 #' @param numthreads how many threads to use in likelihood calculation. If 0, then the program uses all available cores
 #'
+#' @return a list with three items: $model (the parameter estimates), $td (a tidytree object with branch-rate estimates), and $tip_rates (a data frame of the tip rates)
+#'
 #' @examples
 #' data("primates")
 #' 
@@ -134,7 +136,8 @@ fit_bds <- function(
 #' @param condition_survival whether or not to condition on the survival of the left and right lineages descending from the root (default TRUE)
 #' @param condition_root_speciation whether or not to condition on that there was a speciation event at the root node (default TRUE)
 #' @param verbose whether or not to print more information 
-#'
+#' 
+#' @return a list with the maximum-likelihood parameter estimates of the speciation rate and the extinction rate
 #'
 #' @export
 fit_cbd <- function(

@@ -53,6 +53,9 @@ fit_bds(
 
 \item{numthreads}{how many threads to use in likelihood calculation. If 0, then the program uses all available cores}
 }
+\value{
+a list with three items: $model (the parameter estimates), $td (a tidytree object with branch-rate estimates), and $tip_rates (a data frame of the tip rates)
+}
 \description{
 fits the bds model
 }
