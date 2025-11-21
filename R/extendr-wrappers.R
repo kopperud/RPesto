@@ -10,10 +10,6 @@
 #' @useDynLib RPesto, .registration = TRUE
 NULL
 
-#' Return string `"Hello world!"` to R.
-#' @export
-hello_world <- function() .Call(wrap__hello_world)
-
 extinction_probability <- function(lambda, mu, t, tol) .Call(wrap__extinction_probability, lambda, mu, t, tol)
 
 branch_probability_bds <- function(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, t, tol, extinction_approximation) .Call(wrap__branch_probability_bds, lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, t, tol, extinction_approximation)

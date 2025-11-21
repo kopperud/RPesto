@@ -40,13 +40,6 @@ pub mod tip_rates;
 pub mod conditioning;
 pub mod erf;
 
-/// Return string `"Hello world!"` to R.
-/// @export
-#[extendr]
-fn hello_world() -> &'static str {
-    "Hello world!"
-}
-
 
 #[extendr]
 fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api::List{
@@ -240,7 +233,6 @@ pub fn lnq2(x: f64, location: f64, sigma: f64)->f64{
 // See corresponding C code in `entrypoint.c`.
 extendr_module! {
     mod RPesto;
-    fn hello_world;
     fn extinction_probability; 
     fn branch_probability_bds; 
     //fn lnq;
