@@ -40,10 +40,12 @@ fit_bds <- function(phy,
                     verbose = FALSE,
                     numthreads = 0) {
     phy$node.label <- NULL
+    if (verbose) print("writing tree string")
     newick_string <- ape::write.tree(phy)
+    if (verbose) print("parsing tree string")
     phylogeny <- Phylogeny$new(newick_string)
 
-    if (missing(lambda_hat) & missing(mu_hat)) {
+    if (missing(lambda_hat) && missing(mu_hat)) {
         ## fit constant-rate model
         if (verbose) print("fitting constant-rate model")
         bd_opt <- stats::optim(
@@ -105,10 +107,12 @@ fit_bds <- function(phy,
     tip_rates <- phylogeny$tip_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes)
 
     ## write newick string
+    if (verbose) print("writing newick string")
     s <- phylogeny$write_newick()
 
     ## parse newick string
     txt <- textConnection(s)
+    if (verbose) print("parsing newick string")
     tree <- treeio::read.beast.newick(txt)
 
     res <- list(
