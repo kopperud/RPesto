@@ -13,40 +13,37 @@
 #' @param condition_root_speciation whether or not to condition on that there was a speciation event at the root node (default TRUE)
 #' @param condition_marginal whether or condition using the marginal or per-category approach (default FALSE, i.e., to condition per rate category)
 #' @param extinction_approximation whether or not to approximate the extinction probability calculations, by assuming that rate shift events are not allowed on extinct lineages (default FALSE)
-#' @param verbose whether or not to print more information 
+#' @param verbose whether or not to print more information
 #' @param numthreads how many threads to use in likelihood calculation. If 0, then the program uses all available cores
 #'
 #' @return a list with three items: $model (the parameter estimates), $td (a tidytree object with branch-rate estimates), and $tip_rates (a data frame of the tip rates)
 #'
 #' @examples
 #' data("primates")
-#' 
+#'
 #' analysis <- fit_bds(primates, sampling_fraction = 0.6, numthreads = 2)
 #'
-#'
 #' @export
-fit_bds <- function(
-        phy, 
-        sampling_fraction,
-        lambda_hat,
-        mu_hat,
-        eta,
-        num_speciation_classes = 6,
-        num_extinction_classes = 6,
-        sd = 0.587,
-        tol = 1e-6,
-        condition_survival = TRUE,
-        condition_root_speciation = TRUE,
-        condition_marginal = FALSE,
-        extinction_approximation = FALSE,
-        verbose = FALSE,
-        numthreads = 0
-    ){
+fit_bds <- function(phy,
+                    sampling_fraction,
+                    lambda_hat,
+                    mu_hat,
+                    eta,
+                    num_speciation_classes = 6,
+                    num_extinction_classes = 6,
+                    sd = 0.587,
+                    tol = 1e-6,
+                    condition_survival = TRUE,
+                    condition_root_speciation = TRUE,
+                    condition_marginal = FALSE,
+                    extinction_approximation = FALSE,
+                    verbose = FALSE,
+                    numthreads = 0) {
     phy$node.label <- NULL
     newick_string <- ape::write.tree(phy)
     phylogeny <- Phylogeny$new(newick_string)
 
-    if (missing(lambda_hat) & missing(mu_hat)){
+    if (missing(lambda_hat) & missing(mu_hat)) {
         ## fit constant-rate model
         if (verbose) print("fitting constant-rate model")
         bd_opt <- stats::optim(
@@ -57,17 +54,17 @@ fit_bds <- function(
             method = "L-BFGS-B",
             control = list(fnscale = -1),
             hessian = FALSE,
-         )
+        )
 
         lambda_hat <- bd_opt$par[1]
         mu_hat <- bd_opt$par[2]
-    }else{
-        if (missing(lambda_hat) || missing(mu_hat)){
-            stop("either specify lambda_hat and mu_hat, or neither") 
+    } else {
+        if (missing(lambda_hat) || missing(mu_hat)) {
+            stop("either specify lambda_hat and mu_hat, or neither")
         }
     }
 
-    if (missing(eta)){
+    if (missing(eta)) {
         ## fit BDS model
         if (verbose) print("fitting shift rate parameter")
         bds_opt <- stats::optim(
@@ -78,34 +75,34 @@ fit_bds <- function(
             method = "Brent",
             control = list(fnscale = -1),
             hessian = FALSE,
-         )
+        )
 
         eta <- bds_opt$par[1]
     }
 
-    # store D(t) as a cubic spline 
+    # store D(t) as a cubic spline
     if (verbose) print("calculating dense postorder")
     phylogeny$bds_likelihood(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol, TRUE, condition_survival, condition_root_speciation, condition_marginal, extinction_approximation, numthreads)
 
     # calculate F(t)
     if (verbose) print("calculating F(t)")
-    phylogeny$bds_preorder(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol);
+    phylogeny$bds_preorder(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol)
 
     ## calculate netdiv per branch
     if (verbose) print("calculating netdiv per branch")
-    phylogeny$branch_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes);
+    phylogeny$branch_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes)
 
     ## calculate no. shifts per branch
     if (verbose) print("calculating number of shifts")
-    phylogeny$number_of_shifts(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol);
+    phylogeny$number_of_shifts(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol)
 
-    ## calculate Bayes factors per branch 
+    ## calculate Bayes factors per branch
     if (verbose) print("calculating Bayes factors")
-    phylogeny$bayes_factors(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol);
+    phylogeny$bayes_factors(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes, tol)
 
     ## calculate tip rates
     if (verbose) print("calculating tip rates")
-    tip_rates <- phylogeny$tip_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes);
+    tip_rates <- phylogeny$tip_rates(lambda_hat, mu_hat, eta, sampling_fraction, sd, num_speciation_classes, num_extinction_classes)
 
     ## write newick string
     s <- phylogeny$write_newick()
@@ -115,39 +112,37 @@ fit_bds <- function(
     tree <- treeio::read.beast.newick(txt)
 
     res <- list(
-                "model" = c(
-                            "lambda_hat" = lambda_hat,
-                            "mu_hat" = mu_hat,
-                            "eta" = eta
-                            ),
-                "td" = tree,
-                "tip_rates" = tip_rates
-                )
+        "model" = c(
+            "lambda_hat" = lambda_hat,
+            "mu_hat" = mu_hat,
+            "eta" = eta
+        ),
+        "td" = tree,
+        "tip_rates" = tip_rates
+    )
 
     return(res)
 }
 
 
 #' fits the constant-rate birth-death model
-#' 
+#'
 #' @param phy an object of type phylo
 #' @param sampling_fraction the probability that each species was sampled in the tree
 #' @param tol the local error threshold in the numerical ODE solver (per delta_t time step)
 #' @param condition_survival whether or not to condition on the survival of the left and right lineages descending from the root (default TRUE)
 #' @param condition_root_speciation whether or not to condition on that there was a speciation event at the root node (default TRUE)
-#' @param verbose whether or not to print more information 
-#' 
+#' @param verbose whether or not to print more information
+#'
 #' @return a list with the maximum-likelihood parameter estimates of the speciation rate and the extinction rate
 #'
 #' @export
-fit_cbd <- function(
-        phy, 
-        sampling_fraction,
-        tol = 1e-6,
-        condition_survival = TRUE,
-        condition_root_speciation = TRUE,
-        verbose = FALSE
-    ){
+fit_cbd <- function(phy,
+                    sampling_fraction,
+                    tol = 1e-6,
+                    condition_survival = TRUE,
+                    condition_root_speciation = TRUE,
+                    verbose = FALSE) {
     phy$node.label <- NULL
     newick_string <- ape::write.tree(phy)
     phylogeny <- Phylogeny$new(newick_string)
@@ -162,18 +157,15 @@ fit_cbd <- function(
         method = "L-BFGS-B",
         control = list(fnscale = -1),
         hessian = FALSE,
-     )
+    )
 
     lambda_hat <- bd_opt$par[1]
     mu_hat <- bd_opt$par[2]
 
     res <- list(
-            "lambda" = lambda_hat,
-            "mu" = mu_hat
-            )
+        "lambda" = lambda_hat,
+        "mu" = mu_hat
+    )
 
     return(res)
 }
-
-
-
