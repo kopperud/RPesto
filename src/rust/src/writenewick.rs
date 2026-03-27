@@ -13,10 +13,10 @@ impl WriteNewick for Node {
 
         s.push(';');
 
-        return s;
+        s
     }
 
-    fn writenewick_preorder(&self, s: &mut String) -> () {
+    fn writenewick_preorder(&self, s: &mut String) {
         let n_children = self.children.len();
 
         let is_tip = self.children.is_empty();
@@ -59,9 +59,13 @@ impl WriteNewick for Node {
     }
 }
 
-fn add_variable(variable: Option<f64>, items: &mut Vec<String>, label: &str) -> () {
-    match variable {
-        Some(x) => items.push(format!("{}={}", label, x)),
-        _ => (),
+fn add_variable(variable: Option<f64>, items: &mut Vec<String>, label: &str) {
+    if let Some(x) = variable {
+        items.push(format!("{}={}", label, x));
     }
+
+    //match variable {
+    //    Some(x) => items.push(format!("{}={}", label, x)),
+    //    _ => (),
+    //}
 }
