@@ -12,7 +12,8 @@ fit_bds(
   eta,
   num_speciation_classes = 6,
   num_extinction_classes = 6,
-  sd = 0.587,
+  lambda_sd = 0.587,
+  mu_sd = 0.587,
   tol = 1e-06,
   condition_survival = TRUE,
   condition_root_speciation = TRUE,
@@ -37,7 +38,9 @@ fit_bds(
 
 \item{num_extinction_classes}{the number of extinction rate class discretizations, such that rate categories is k = n_sp * n_mu}
 
-\item{sd}{the spread parameter for the log-normal base distribution}
+\item{lambda_sd}{the spread parameter for the log-normal base distribution}
+
+\item{mu_sd}{the spread parameter for the log-normal base distribution}
 
 \item{tol}{the local error threshold in the numerical ODE solver (per delta_t time step)}
 
@@ -63,6 +66,5 @@ fits the bds model
 data("primates")
 
 analysis <- fit_bds(primates, sampling_fraction = 0.6, numthreads = 2)
-
 
 }

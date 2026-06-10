@@ -19,17 +19,25 @@ pub struct ShiftBD {
     pub extinction_approximation: bool,
 }
 
-
-        //let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
-impl ShiftBD{
-    pub fn new(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, extinction_approximation: bool) -> ShiftBD{
-
+//let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n);
+impl ShiftBD {
+    pub fn new(
+        lambda_hat: f64,
+        mu_hat: f64,
+        eta: f64,
+        rho: f64,
+        lambda_sd: f64,
+        mu_sd: f64,
+        n_lambda: usize,
+        n_mu: usize,
+        extinction_approximation: bool,
+    ) -> ShiftBD {
         let k = n_lambda * n_mu;
 
-        let (lambda, mu) = rate_categories(lambda_hat, mu_hat, sd, n_lambda, n_mu);
+        let (lambda, mu) = rate_categories(lambda_hat, mu_hat, lambda_sd, mu_sd, n_lambda, n_mu);
 
-        let model = ShiftBD{
-            lambda_hat, 
+        let model = ShiftBD {
+            lambda_hat,
             mu_hat,
             eta,
             rho,
@@ -42,7 +50,3 @@ impl ShiftBD{
         return model;
     }
 }
-
-
-
-

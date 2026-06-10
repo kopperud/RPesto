@@ -1,60 +1,59 @@
 #![allow(non_snake_case)]
 
-
 use extendr_api::prelude::*;
 //use std::collections::HashMap;
 
-use crate::parser::*;
-use crate::extinction::*;
-use crate::odesolver::*;
-use crate::likelihood::*;
-use crate::preorder::*;
-use crate::models::*;
-use crate::tree::Node;
-use crate::branchrates::*;
-use crate::writenewick::*;
-use crate::number_of_shifts::*;
 use crate::bayes_factor::*;
-use crate::tip_rates::*;
+use crate::branchrates::*;
 use crate::conditioning::*;
+use crate::extinction::*;
+use crate::likelihood::*;
+use crate::models::*;
+use crate::number_of_shifts::*;
+use crate::odesolver::*;
+use crate::parser::*;
+use crate::preorder::*;
+use crate::tip_rates::*;
+use crate::tree::Node;
+use crate::writenewick::*;
 
-pub mod spline;
-pub mod marginal_probability;
-pub mod categories;
-pub mod tokenizer;
-pub mod tree;
-pub mod parser;
-pub mod extinction;
-pub mod likelihood;
-pub mod preorder;
-pub mod branch_probability;
-pub mod utils;
-pub mod odesolver;
-pub mod branchrates;
-pub mod height;
-pub mod models;
-pub mod writenewick;
-pub mod number_of_shifts;
 pub mod bayes_factor;
-pub mod tip_rates;
+pub mod branch_probability;
+pub mod branchrates;
+pub mod categories;
 pub mod conditioning;
 pub mod erf;
-
+pub mod extinction;
+pub mod height;
+pub mod likelihood;
+pub mod marginal_probability;
+pub mod models;
+pub mod number_of_shifts;
+pub mod odesolver;
+pub mod parser;
+pub mod preorder;
+pub mod spline;
+pub mod tip_rates;
+pub mod tokenizer;
+pub mod tree;
+pub mod utils;
+pub mod writenewick;
 
 #[extendr]
-fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api::List{
-    let ode = Extinction{mu, lambda};
+fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api::List {
+    let ode = Extinction { mu, lambda };
 
     let u0 = vec![0.0];
     let t0 = 0.0;
 
     let equation = EquationType::Probability;
-    let (times, probs) = ode.solve_dopri45(u0, t0, t, true, 10, tol, equation).expect("asd");
-
+    let (times, probs) = ode
+        .solve_dopri45(u0, t0, t, true, 10, tol, equation)
+        .expect("asd");
 
     let mut m = Vec::new();
 
-    for p in probs{
+    for p in probs {
         m.push(p[0]);
     }
 
@@ -66,23 +65,50 @@ fn extinction_probability(lambda: f64, mu: f64, t: f64, tol: f64) -> extendr_api
 use crate::branch_probability::*;
 
 #[extendr]
-fn branch_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, t: f64, tol: f64, extinction_approximation: bool) -> extendr_api::List{
-//fn extinction_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, sampling_probability: f64, t: f64, tol: f64, extinction_approximation: bool) -> extendr_api::List{
+fn branch_probability_bds(
+    lambda_hat: f64,
+    mu_hat: f64,
+    eta: f64,
+    rho: f64,
+    lambda_sd: f64,
+    mu_sd: f64,
+    n_lambda: usize,
+    n_mu: usize,
+    t: f64,
+    tol: f64,
+    extinction_approximation: bool,
+) -> extendr_api::List {
+    //fn extinction_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, sd: f64, sampling_probability: f64, t: f64, tol: f64, extinction_approximation: bool) -> extendr_api::List{
 
-    let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, extinction_approximation);
+    let model = ShiftBD::new(
+        lambda_hat,
+        mu_hat,
+        eta,
+        rho,
+        lambda_sd,
+        mu_sd,
+        n_lambda,
+        n_mu,
+        extinction_approximation,
+    );
 
     let k = model.mu.len();
 
     //let ode = ExtinctionMultiState{mu: model.mu, lambda: model.lambda, eta, extinction_approximation};
-    let ode = BranchProbabilityMultiState::new(model.lambda.clone(), model.mu.clone(), eta, extinction_approximation);
+    let ode = BranchProbabilityMultiState::new(
+        model.lambda.clone(),
+        model.mu.clone(),
+        eta,
+        extinction_approximation,
+    );
 
-    let mut u0 = vec![0.0; k*2];
+    let mut u0 = vec![0.0; k * 2];
 
-    for i in 0..k{
+    for i in 0..k {
         u0[i] = 1.0 - rho;
-        u0[k+i] = rho;
+        u0[k + i] = rho;
     }
-        
+
     let dense = true; // solve ODE with dense output
     let n_steps_init = 4;
 
@@ -90,12 +116,13 @@ fn branch_probability_bds(lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: 
     let t1 = t;
 
     let equation = EquationType::ProbabilityDensity;
-    let (times, sol) = ode.solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, equation).expect("could not calculate branch probabiltiy E(t) and D(t) in likelihood function");
-
+    let (times, sol) = ode
+        .solve_dopri45(u0, t0, t1, dense, n_steps_init, tol, equation)
+        .expect("could not calculate branch probabiltiy E(t) and D(t) in likelihood function");
 
     let n_times = times.len();
 
-    let m = RMatrix::new_matrix(n_times, 2*k, |r, c| sol[r][c]);
+    let m = RMatrix::new_matrix(n_times, 2 * k, |r, c| sol[r][c]);
 
     let res = list!(t = &times, probs = m);
 
@@ -127,90 +154,203 @@ struct Phylogeny {
 impl Phylogeny {
     fn new(newick: String) -> Self {
         Self {
-            tree: parse_tree(newick)
+            tree: parse_tree(newick),
         }
     }
 
     fn print(&self) -> () {
-        println!("{:?}", self.tree); 
+        println!("{:?}", self.tree);
     }
 
-    fn bd_likelihood(&mut self, lambda: f64, mu: f64, rho: f64, tol: f64, store: bool, condition_survival: bool, condition_root_speciation: bool) -> f64{
-        let model = ConstantBD{lambda, mu, rho};
+    fn bd_likelihood(
+        &mut self,
+        lambda: f64,
+        mu: f64,
+        rho: f64,
+        tol: f64,
+        store: bool,
+        condition_survival: bool,
+        condition_root_speciation: bool,
+    ) -> f64 {
+        let model = ConstantBD { lambda, mu, rho };
 
         let mut conditions: Vec<Condition> = Vec::new();
-        if condition_survival{
+        if condition_survival {
             conditions.push(Condition::Survival);
         }
-        if condition_root_speciation{
+        if condition_root_speciation {
             conditions.push(Condition::RootSpeciation);
         }
 
         // this does not matter for cbdp
-        let condition_marginal = false; 
+        let condition_marginal = false;
 
         // just do single threaded
         let numthreads = 1;
 
-        let lnl = model.likelihood(&mut self.tree, conditions, tol, condition_marginal, store, numthreads);
+        let lnl = model.likelihood(
+            &mut self.tree,
+            conditions,
+            tol,
+            condition_marginal,
+            store,
+            numthreads,
+        );
         return lnl;
     }
 
-    pub fn bds_likelihood(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64, store: bool, condition_survival: bool, condition_root_speciation: bool, condition_marginal: bool, extinction_approximation: bool, numthreads: usize) -> f64{
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, extinction_approximation);
+    pub fn bds_likelihood(
+        &mut self,
+        lambda_hat: f64,
+        mu_hat: f64,
+        eta: f64,
+        rho: f64,
+        lambda_sd: f64,
+        mu_sd: f64,
+        n_lambda: usize,
+        n_mu: usize,
+        tol: f64,
+        store: bool,
+        condition_survival: bool,
+        condition_root_speciation: bool,
+        condition_marginal: bool,
+        extinction_approximation: bool,
+        numthreads: usize,
+    ) -> f64 {
+        let model = ShiftBD::new(
+            lambda_hat,
+            mu_hat,
+            eta,
+            rho,
+            lambda_sd,
+            mu_sd,
+            n_lambda,
+            n_mu,
+            extinction_approximation,
+        );
 
         let mut conditions: Vec<Condition> = Vec::new();
 
-        if condition_survival{
+        if condition_survival {
             conditions.push(Condition::Survival);
         }
-        if condition_root_speciation{
+        if condition_root_speciation {
             conditions.push(Condition::RootSpeciation);
         }
 
-        let lnl = model.likelihood(&mut self.tree, conditions, tol, condition_marginal, store, numthreads);
+        let lnl = model.likelihood(
+            &mut self.tree,
+            conditions,
+            tol,
+            condition_marginal,
+            store,
+            numthreads,
+        );
 
         return lnl;
     }
 
-    pub fn bds_preorder(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64 ) -> (){
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
+    pub fn bds_preorder(
+        &mut self,
+        lambda_hat: f64,
+        mu_hat: f64,
+        eta: f64,
+        rho: f64,
+        lambda_sd: f64,
+        mu_sd: f64,
+        n_lambda: usize,
+        n_mu: usize,
+        tol: f64,
+    ) -> () {
+        let model = ShiftBD::new(
+            lambda_hat, mu_hat, eta, rho, lambda_sd, mu_sd, n_lambda, n_mu, false,
+        );
         model.preorder(&mut self.tree, tol);
     }
 
-    pub fn branch_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize) -> (){
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
-        model.net_diversification(&mut self.tree );
-        model.speciation(&mut self.tree );
-        model.extinction(&mut self.tree );
+    pub fn branch_rates(
+        &mut self,
+        lambda_hat: f64,
+        mu_hat: f64,
+        eta: f64,
+        rho: f64,
+        lambda_sd: f64,
+        mu_sd: f64,
+        n_lambda: usize,
+        n_mu: usize,
+    ) -> () {
+        let model = ShiftBD::new(
+            lambda_hat, mu_hat, eta, rho, lambda_sd, mu_sd, n_lambda, n_mu, false,
+        );
+        model.net_diversification(&mut self.tree);
+        model.speciation(&mut self.tree);
+        model.extinction(&mut self.tree);
     }
 
-    pub fn number_of_shifts(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64) -> (){
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
+    pub fn number_of_shifts(
+        &mut self,
+        lambda_hat: f64,
+        mu_hat: f64,
+        eta: f64,
+        rho: f64,
+        lambda_sd: f64,
+        mu_sd: f64,
+        n_lambda: usize,
+        n_mu: usize,
+        tol: f64,
+    ) -> () {
+        let model = ShiftBD::new(
+            lambda_hat, mu_hat, eta, rho, lambda_sd, mu_sd, n_lambda, n_mu, false,
+        );
         model.number_of_shifts(&mut self.tree, tol);
     }
 
-    pub fn bayes_factors(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize, tol: f64) -> (){
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
+    pub fn bayes_factors(
+        &mut self,
+        lambda_hat: f64,
+        mu_hat: f64,
+        eta: f64,
+        rho: f64,
+        lambda_sd: f64,
+        mu_sd: f64,
+        n_lambda: usize,
+        n_mu: usize,
+        tol: f64,
+    ) -> () {
+        let model = ShiftBD::new(
+            lambda_hat, mu_hat, eta, rho, lambda_sd, mu_sd, n_lambda, n_mu, false,
+        );
         model.bayes_factors(&mut self.tree, tol);
     }
 
-    pub fn tip_rates(&mut self, lambda_hat: f64, mu_hat: f64, eta: f64, rho: f64, sd: f64, n_lambda: usize, n_mu: usize) -> Dataframe<TipRateRow>{
-        let model = ShiftBD::new(lambda_hat, mu_hat, eta, rho, sd, n_lambda, n_mu, false);
+    pub fn tip_rates(
+        &mut self,
+        lambda_hat: f64,
+        mu_hat: f64,
+        eta: f64,
+        rho: f64,
+        lambda_sd: f64,
+        mu_sd: f64,
+        n_lambda: usize,
+        n_mu: usize,
+    ) -> Dataframe<TipRateRow> {
+        let model = ShiftBD::new(
+            lambda_hat, mu_hat, eta, rho, lambda_sd, mu_sd, n_lambda, n_mu, false,
+        );
 
         let items = model.tip_rates(&mut self.tree);
 
-        let df = items.into_dataframe()
+        let df = items
+            .into_dataframe()
             .expect("expected to return a data frame");
 
         return df;
     }
 
-    pub fn write_newick(&mut self) -> String{
+    pub fn write_newick(&mut self) -> String {
         let newick = self.tree.writenewick();
         return newick;
     }
-
 }
 
 /*
@@ -227,38 +367,14 @@ pub fn lnq2(x: f64, location: f64, sigma: f64)->f64{
 }
 */
 
-
 // Macro to generate exports.
 // This ensures exported functions are registered with R.
 // See corresponding C code in `entrypoint.c`.
 extendr_module! {
     mod RPesto;
-    fn extinction_probability; 
-    fn branch_probability_bds; 
+    fn extinction_probability;
+    fn branch_probability_bds;
     //fn lnq;
     //fn lnq2;
     impl Phylogeny;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

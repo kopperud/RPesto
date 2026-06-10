@@ -10,3 +10,5 @@ src/rust/.cargo
 .github
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
+^.*\.Rproj$
+^\.Rproj\.user$

@@ -4,3 +4,6 @@ src/Makevars.win
 src/rust/vendor.tar.xz
 src/rust/vendor-config.toml
 **/**.swp
+.Rproj.user
+.Rhistory
+RPesto.Rproj
