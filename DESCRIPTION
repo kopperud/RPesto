@@ -1,6 +1,6 @@
 Package: RPesto
 Title: Phylogenetic Estimation of Shifts in the Tempo of Origination 
-Version: 0.1.4.9000
+Version: 0.1.5
 Authors@R: 
     c(person("Bj\u00F8rn Tore", "Kopperud", role = c("aut", "cre"), email = "kopperud@protonmail.com"),
       person("Sebastian", "H\u00F6hna", role = c("aut")))
@@ -8,7 +8,6 @@ Description: Implements diversification analyses using the phylogenetic birth-de
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Imports:
     tidytree,
     treeio,
@@ -17,3 +16,4 @@ Config/rextendr/version: 0.4.2
 SystemRequirements: Cargo (Rust's package manager), rustc
 Depends: 
     R (>= 4.2)
+Config/roxygen2/version: 8.0.0
