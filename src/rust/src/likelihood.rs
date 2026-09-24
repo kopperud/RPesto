@@ -308,16 +308,19 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD {
 
         let n = sol.len() - 1;
 
-        let alpha: f64 = sol[n][(self.k + 1)..(2 * self.k)].iter().sum();
-
+        //let alpha: f64 = sol[n][(self.k + 1)..(2 * self.k)].iter().sum();
+        let mut p_sum = 0.0;
+        for i in 0..self.k {
+            p_sum += sol[n][self.k + i];
+        }
         let mut p = Vec::new();
-        //let p = sol.last();
         for i in 0..self.k {
             p.push(sol[n][i]);
         }
 
+        // normalize
         for i in 0..self.k {
-            p.push(sol[n][self.k + i] / alpha);
+            p.push(sol[n][self.k + i] / p_sum);
         }
 
         if store {
@@ -330,7 +333,7 @@ impl Likelihood<BranchProbabilityMultiState> for ShiftBD {
             node.subtree_probability = Some(branch_probability);
         }
 
-        log_sf += alpha.ln();
+        log_sf += p_sum.ln();
 
         (p, log_sf)
     }

@@ -2,6 +2,7 @@ use core::f64;
 
 //use statrs::distribution::{LogNormal,ContinuousCDF};
 use crate::erf::erfc_inv;
+use statrs::distribution::{ContinuousCDF, LogNormal};
 
 //use extendr_api::prelude::*;
 
@@ -53,14 +54,14 @@ mod tests {
 pub fn make_quantiles(location: f64, sigma: f64, n: usize) -> Vec<f64> {
     let mut quantiles = Vec::new();
 
-    //let d = LogNormal::new(location, sigma).expect("expected to create lognormal distribution");
+    let d = LogNormal::new(location, sigma).expect("expected to create lognormal distribution");
 
     let step = 0.5;
 
     for i in 1..(n + 1) {
         let p = ((i as f64) - step) / (n as f64);
-        //let q = d.inverse_cdf(p);
-        let q = lognormal_quantile(p, location, sigma);
+        //let q = lognormal_quantile(p, location, sigma);
+        let q = d.inverse_cdf(p);
         quantiles.push(q);
     }
 
