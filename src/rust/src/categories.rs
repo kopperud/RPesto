@@ -1,4 +1,4 @@
-use core::f64;
+const SQRT_2: f64 = core::f64::consts::SQRT_2;
 
 //use statrs::distribution::{LogNormal,ContinuousCDF};
 use crate::erf::erfc_inv;
@@ -10,7 +10,7 @@ pub fn lognormal_quantile(p: f64, location: f64, sigma: f64) -> f64 {
     if p == 0.0 {
         0.0
     } else if p < 1.0 {
-        (location - (sigma * f64::consts::SQRT_2 * erfc_inv(2.0 * p))).exp()
+        (location - (sigma * SQRT_2 * erfc_inv(2.0 * p))).exp()
     } else if p == 1.0 {
         f64::INFINITY
     } else {

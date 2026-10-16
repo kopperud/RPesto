@@ -5,7 +5,6 @@ use crate::odesolver::*;
 use crate::spline::*;
 use crate::tree::*;
 use crate::utils::*;
-use core::f64;
 use std::fmt;
 
 #[derive(Debug, Clone)]
