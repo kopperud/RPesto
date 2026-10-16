@@ -11,6 +11,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{tidytree}{\code{\link[tidytree]{treedata}}}
+  \item{tidytree}{\code{\link[tidytree:treedata]{treedata()}}}
 }}
 

@@ -22,6 +22,7 @@ Implements diversification analyses using the phylogenetic birth-death-shift mod
 
 Authors:
 \itemize{
+  \item Bjørn Tore Kopperud \email{kopperud@protonmail.com}
   \item Sebastian Höhna
 }
 

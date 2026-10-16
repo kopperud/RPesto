@@ -1,16 +1,21 @@
 [package]
-name = 'RPesto'
+name = 'rpesto'
 publish = false
 version = '0.1.0'
 edition = '2021'
 rust-version = '1.65'
 
 [lib]
-crate-type = [ 'staticlib' ]
-name = 'RPesto'
+crate-type = [ 'rlib', 'staticlib' ]
+name = 'rpesto'
+
+[[bin]]
+name = 'document'
+path = 'document.rs'
+
 
 [dependencies]
-extendr-api = '*'
+extendr-api = "0.9.0"
 itertools = "0.14.0"
 once_cell = "1.21.3"
 rayon = "1.10.0"

@@ -136,7 +136,7 @@ struct Phylogeny {
     pub tree: Box<Node>,
 }
 
-/// Phylogeny constructor
+/// Phylogeny
 ///
 /// @usage Phylogeny(newick)
 /// @description Constructs a phylogeny that lives in the "rust" part of the program
@@ -152,7 +152,7 @@ struct Phylogeny {
 /// @export
 #[extendr]
 impl Phylogeny {
-    fn new(newick: String) -> Self {
+    pub fn new(newick: String) -> Self {
         Self {
             tree: parse_tree(newick),
         }
@@ -371,7 +371,7 @@ pub fn lnq2(x: f64, location: f64, sigma: f64)->f64{
 // This ensures exported functions are registered with R.
 // See corresponding C code in `entrypoint.c`.
 extendr_module! {
-    mod RPesto;
+    mod rpesto;
     fn extinction_probability;
     fn branch_probability_bds;
     //fn lnq;
