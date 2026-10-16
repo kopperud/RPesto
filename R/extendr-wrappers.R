@@ -9,7 +9,8 @@ extinction_probability <- function(lambda, mu, t, tol) .Call(wrap__extinction_pr
 
 branch_probability_bds <- function(lambda_hat, mu_hat, eta, rho, lambda_sd, mu_sd, n_lambda, n_mu, t, tol, extinction_approximation) .Call(wrap__branch_probability_bds, lambda_hat, mu_hat, eta, rho, lambda_sd, mu_sd, n_lambda, n_mu, t, tol, extinction_approximation)
 
-#' Phylogeny
+#' @export
+#' @title Phylogeny
 #'
 #' @usage Phylogeny(newick)
 #' @description Constructs a phylogeny that lives in the "rust" part of the program

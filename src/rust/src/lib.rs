@@ -136,7 +136,7 @@ struct Phylogeny {
     pub tree: Box<Node>,
 }
 
-/// Phylogeny
+/// @title Phylogeny
 ///
 /// @usage Phylogeny(newick)
 /// @description Constructs a phylogeny that lives in the "rust" part of the program
