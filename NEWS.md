@@ -1,3 +1,7 @@
+## RPesto 0.1.6
+* Fixed cran CHECK notes due to deprecated consts in new Rust version
+* Also update the rextendr-scaffold 
+
 ## RPesto 0.1.5
 Fixed cran CHECK notes due to outdated rextendr version
 
