@@ -8,12 +8,11 @@ I have done an R CMD check on the following platforms
 - Mac M1 (R-4.6.1)
 - Windows Server 2025 x64 (R-devel)
 
-On Windows, there was one warning:
-
-    Warning: Warning: file 'RPesto/configure' did not have execute permissions: corrected
-
-I am not sure how to correct this, but on the other platforms, there were no issues 
-
 RPesto includes rust code, and so it depends on cargo and rustc. I have bundled the rust dependencies in an archive src/rust/vendor.tar.xz such that the installation script does not download any external crates.
 
 I have also used the CRAN win-builder service, with the result 
+
+Installation time in seconds: 126
+Check time in seconds: 118
+Status: OK
+R Under development (unstable) (2026-10-22 r90748 ucrt)
